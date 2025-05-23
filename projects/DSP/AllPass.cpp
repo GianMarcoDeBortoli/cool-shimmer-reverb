@@ -7,8 +7,7 @@ AllPass::AllPass(float maxTimeMs, unsigned int maxNumChannels) :
     delayLine(static_cast<unsigned int>(std::ceil(std::fmax(maxTimeMs, 1.f) * static_cast<float>(0.001 * sampleRate))),
                static_cast<unsigned int>(std::fmax(maxNumChannels, 1u))),
     delayTimeMs { 20.0f },
-    coeff { 0.5f },
-    feedbackState(static_cast<unsigned int>(std::fmax(maxNumChannels, 1u)), 0.0f)
+    coeff { 0.5f }
 {
 }
 
@@ -24,9 +23,6 @@ void AllPass::prepare(double newSampleRate, float maxTimeMs, unsigned int numCha
     delayLine.setDelaySamples(1); // Keep at least 1 sample minimum fixed delay
 
     setCoeff(0.5f);
-
-    feedbackState.resize(numChannels);
-    std::fill(feedbackState.begin(), feedbackState.end(), 0.f);
 
     clear();
 }
@@ -57,7 +53,7 @@ void AllPass::process(float* const* output, const float* const* input, unsigned 
     for (unsigned int n = 0; n < numSamples; ++n)
     {
         // Compute the input to the delay line 
-        // 
+        //
         float delayIn[2] { 0.f, 0.f };
         for (unsigned int ch = 0; ch < numChannels; ++ch)
         {

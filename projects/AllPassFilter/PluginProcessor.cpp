@@ -4,11 +4,12 @@
 
 static const std::vector<mrta::ParameterInfo> parameters
 {
-    { Param::ID::Enabled,  Param::Name::Enabled,  Param::Ranges::EnabledOff, Param::Ranges::EnabledOn, true },
+    { Param::ID::Enabled,  Param::Name::Enabled,  Param::Range::EnabledOff, Param::Range::EnabledOn, true },
 };
 
-AllPassFilterProcessor::AllPassFilterProcessor() :
-    parameterManager(*this, ProjectInfo::projectName, parameters)
+AllPassFilterProcessor::AllPassFilterProcessor():
+    parameterManager(*this, ProjectInfo::projectName, parameters),
+    AllPassFilter(MaxDelaySizeMs, MaxChannels)
 {
 }
 
@@ -18,7 +19,7 @@ AllPassFilterProcessor::~AllPassFilterProcessor()
 
 void AllPassFilterProcessor::prepareToPlay(double sampleRate, int /*samplesPerBlock*/)
 {
-    AllPassFilter.prepare(sampleRate);
+    AllPassFilter.prepare(sampleRate, MaxDelaySizeMs, MaxChannels);
     parameterManager.updateParameters(true);
 }
 

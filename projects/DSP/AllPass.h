@@ -44,7 +44,7 @@ private:
     float coeff { 0.f };
 
     // one state per channel
-    std::vector<float> feedbackState;
+    float feedbackState[2] { 0.f, 0.f };
 
     static constexpr float MaxChannels { 2 };
 };
