@@ -331,3 +331,22 @@ add_plugin(amp_model
         ${gui_source}
         ${dsp_source}
         ${amp_model_source})
+
+# all pass filter 
+set(apf_model_source ${CMAKE_CURRENT_SOURCE_DIR}/projects/AllPassFilter)
+
+add_plugin(allpass
+    VERSION 0.1.0
+    PLUGIN_NAME "All Pass Filter"
+    PROD_NAME AllPass
+    PROD_CODE AllP
+    SYNTH FALSE
+    SOURCES
+        ${apf_model_source}/PluginEditor.cpp
+        ${apf_model_source}/PluginProcessor.cpp
+        ${dsp_source}/AllPass.cpp
+        ${dsp_source}/DelayLine.cpp
+    INCLUDE_DIRS
+        ${gui_source}
+        ${dsp_source}
+        ${apf_model_source})
