@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 
 #include "AllPass.h"
+#include "Ramp.h"
 
 namespace Param
 {
@@ -60,6 +61,10 @@ public:
 private:
     mrta::ParameterManager parameterManager;
     DSP::AllPass AllPassFilter;
+    DSP::Ramp<float> enableRamp;
+
+    bool enabled { true };
+    juce::AudioBuffer<float> fxBuffer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(AllPassFilterProcessor)
 };

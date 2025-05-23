@@ -9,8 +9,16 @@ static const std::vector<mrta::ParameterInfo> parameters
 
 AllPassFilterProcessor::AllPassFilterProcessor():
     parameterManager(*this, ProjectInfo::projectName, parameters),
-    AllPassFilter(MaxDelaySizeMs, MaxChannels)
+    AllPassFilter(MaxDelaySizeMs, MaxChannels),
+    enableRamp(0.05f)
+
 {
+    parameterManager.registerParameterCallback(Param::ID::Enabled,
+    [this](float newValue, bool force)
+    {
+        enabled = newValue > 0.5f;
+        enableRamp.setTarget(enabled ? 1.f : 0.f, force);
+    });
 }
 
 AllPassFilterProcessor::~AllPassFilterProcessor()
@@ -19,6 +27,7 @@ AllPassFilterProcessor::~AllPassFilterProcessor()
 
 void AllPassFilterProcessor::prepareToPlay(double sampleRate, int /*samplesPerBlock*/)
 {
+    enableRamp.prepare(sampleRate, true, enabled ? 1.f : 0.f);
     AllPassFilter.prepare(sampleRate, MaxDelaySizeMs, MaxChannels);
     parameterManager.updateParameters(true);
 }
@@ -35,7 +44,12 @@ void AllPassFilterProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     const unsigned int numChannels{ static_cast<unsigned int>(buffer.getNumChannels()) };
     const unsigned int numSamples{ static_cast<unsigned int>(buffer.getNumSamples()) };
 
-    AllPassFilter.process(buffer.getArrayOfWritePointers(), buffer.getArrayOfReadPointers(), numChannels, numSamples);
+    for (int ch = 0; ch < static_cast<int>(numChannels); ++ch)
+        fxBuffer.copyFrom(ch, 0, buffer, ch, 0, static_cast<int>(numSamples));
+
+
+    AllPassFilter.process(fxBuffer.getArrayOfWritePointers(), buffer.getArrayOfReadPointers(), numChannels, numSamples);
+    enableRamp.applyGain(fxBuffer.getArrayOfWritePointers(), numChannels, numSamples);
 }
 
 void AllPassFilterProcessor::getStateInformation(juce::MemoryBlock& destData)
