@@ -60,15 +60,15 @@ void AllPass::process(float* const* output, const float* const* input, unsigned 
             delayIn[ch] = -coeff * feedbackState[ch] + input[ch][n];
         }
 
-        // Process delay
-        delayLine.process(feedbackState, delayIn, numChannels);
-
         for (unsigned int ch = 0; ch < numChannels; ++ch)
         {
             // Compute the output
             output[ch][n] = coeff * delayIn[ch] + feedbackState[ch];
         }
 
+        // Process delay
+        delayLine.process(feedbackState, delayIn, numChannels);
+        
     }
 
 }
