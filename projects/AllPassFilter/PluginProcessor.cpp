@@ -25,15 +25,23 @@ AllPassFilterProcessor::~AllPassFilterProcessor()
 {
 }
 
-void AllPassFilterProcessor::prepareToPlay(double sampleRate, int /*samplesPerBlock*/)
+void AllPassFilterProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
-    enableRamp.prepare(sampleRate, true, enabled ? 1.f : 0.f);
+    const unsigned int numChannels { std::max(static_cast<unsigned int>(getMainBusNumInputChannels()), static_cast<unsigned int>(MaxChannels)) };
+
     AllPassFilter.prepare(sampleRate, MaxDelaySizeMs, MaxChannels);
+    AllPassFilter.setDelayTime(MaxDelaySizeMs);
+    enableRamp.prepare(sampleRate, true, enabled ? 1.f : 0.f);
+
     parameterManager.updateParameters(true);
+
+    fxBuffer.setSize(static_cast<int>(numChannels), samplesPerBlock);
+    fxBuffer.clear();
 }
 
 void AllPassFilterProcessor::releaseResources()
 {
+    AllPassFilter.clear();
 }
 
 void AllPassFilterProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& /*midiMessages*/)
@@ -50,6 +58,9 @@ void AllPassFilterProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
 
     AllPassFilter.process(fxBuffer.getArrayOfWritePointers(), buffer.getArrayOfReadPointers(), numChannels, numSamples);
     enableRamp.applyGain(fxBuffer.getArrayOfWritePointers(), numChannels, numSamples);
+
+    for (int ch = 0; ch < static_cast<int>(numChannels); ++ch)
+        buffer.addFrom(ch, 0, fxBuffer, ch, 0, static_cast<int>(numSamples));
 }
 
 void AllPassFilterProcessor::getStateInformation(juce::MemoryBlock& destData)

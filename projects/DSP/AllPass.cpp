@@ -4,7 +4,7 @@ namespace DSP
 {
 
 AllPass::AllPass(float maxTimeMs, unsigned int maxNumChannels) :
-    delayLine(static_cast<unsigned int>(std::ceil(std::fmax(maxTimeMs, 1.f) * static_cast<float>(0.001 * sampleRate))),
+    delayLine(static_cast<unsigned int>(std::ceil(static_cast<float>(std::fmax(maxTimeMs, 1.f)) * static_cast<float>(0.001 * sampleRate))),
                static_cast<unsigned int>(std::fmax(maxNumChannels, 1u))),
     delayTimeMs { 20.0f },
     coeff { 0.5f }

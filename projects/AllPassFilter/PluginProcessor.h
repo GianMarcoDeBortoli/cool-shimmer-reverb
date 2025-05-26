@@ -55,8 +55,7 @@ public:
     //==============================================================================
 
     static constexpr float MaxDelaySizeMs { 20.f };
-    static const unsigned int MaxChannels { 2 };
-    static const unsigned int MaxProcessBlockSamples{ 32 };
+    static constexpr int MaxChannels { 2 };
 
 private:
     mrta::ParameterManager parameterManager;
