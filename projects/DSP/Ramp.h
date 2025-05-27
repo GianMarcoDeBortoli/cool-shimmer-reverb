@@ -152,6 +152,51 @@ public:
         }
     }
 
+    // Apply gain ramp to an audio buffer in-place for single sample
+    void applyInverseGain(F* buffers, unsigned int numChannels)
+    {
+        const F targetDelta { std::fabs(targetValue - currentValue) };
+        if ((targetDelta > std::fabs(static_cast<F>(2) * rampStep)) && (std::fabs(rampStep) > minDelta))
+            currentValue += rampStep;
+        else
+            currentValue = targetValue;
+
+        for (unsigned int ch = 0; ch < numChannels; ++ch)
+            buffers[ch] *= (1 - currentValue);
+    }
+
+    // Apply gain ramp to an audio buffer in-place
+    void applyInverseGain(F* const* buffers, unsigned int numChannels, unsigned int numSamples)
+    {
+        for (unsigned int n = 0; n < numSamples; ++n)
+        {
+            const F targetDelta { std::fabs(targetValue - currentValue) };
+            if ((targetDelta > std::fabs(static_cast<F>(2) * rampStep)) && (std::fabs(rampStep) > minDelta))
+                currentValue += rampStep;
+            else
+                currentValue = targetValue;
+
+            for (unsigned int ch = 0; ch < numChannels; ++ch)
+                buffers[ch][n] *= (1 - currentValue);
+        }
+    }
+
+    // Apply gain ramp to an audio buffer out-of-place
+    void applyInverseGain(F* const* output, const F* const* input, unsigned int numChannels, unsigned int numSamples)
+    {
+        for (unsigned int n = 0; n < numSamples; ++n)
+        {
+            const F targetDelta{ std::fabs(targetValue - currentValue) };
+            if ((targetDelta > std::fabs(static_cast<F>(2) * rampStep)) && (std::fabs(rampStep) > minDelta))
+                currentValue += rampStep;
+            else
+                currentValue = targetValue;
+
+            for (unsigned int ch = 0; ch < numChannels; ++ch)
+                output[ch][n] = (1 - currentValue) * input[ch][n];
+        }
+    }
+
     float getNext()
     {
         const F targetDelta { std::fabs(targetValue - currentValue) };

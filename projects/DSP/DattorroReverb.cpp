@@ -1,4 +1,4 @@
-#include "DelayLine.h"
+#include "DattorroReverb.h"
 
 #include <algorithm>
 #include <cmath>
@@ -6,161 +6,162 @@
 namespace DSP
 {
 
-DelayLine::DelayLine(unsigned int maxLengthSamples, unsigned int numChannels)
+DattorroReverb::DattorroReverb(double sampleRate, unsigned int numChannels, float preDelayTimeMs, float bandwidth, float inputDiffusion1, float inputDiffusion2, float decayDiffusion1, float decayDiffusion2, float damping, float decay) :
+    preDelay(static_cast<unsigned int>(std::ceil(preDelayTimeMs * 0.001f * sampleRate)), numChannels),
+    preDiffusionFilter(bandwidth),
+    inputDiffusion1a(InputDiffusion1a_Delay, numChannels),
+    inputDiffusion1b(InputDiffusion1b_Delay, numChannels),
+    inputDiffusion2a(InputDiffusion2a_Delay, numChannels),
+    inputDiffusion2b(InputDiffusion2b_Delay, numChannels),
+    decayDiffusion1L(DecayDiffusion1L_Delay, numChannels),
+    decayDelay1L(DecayDelay1L_Delay, numChannels),
+    dampingL(damping),
+    decayDiffusion2L(DecayDiffusion2L_Delay, numChannels),
+    decayDelay2L(DecayDelay2L_Delay, numChannels),
+    decayDiffusion1R(DecayDiffusion1R_Delay, numChannels),
+    decayDelay1R(DecayDelay1R_Delay, numChannels),
+    dampingR(damping),
+    decayDiffusion2R(DecayDiffusion2R_Delay, numChannels),
+    decayDelay2R(DecayDelay2R_Delay, numChannels)
 {
-    for (unsigned int ch = 0; ch < numChannels; ++ch)
-        delayBuffer.emplace_back(maxLengthSamples, 0.f);
+    sampleRate = std::fmax(sampleRate, 1.f);
+    inputDiffusion1a.setCoeff(std::clamp(inputDiffusion1, 0.f, MaxDiffusion));
+    inputDiffusion1b.setCoeff(std::clamp(inputDiffusion1, 0.f, MaxDiffusion));
+    inputDiffusion2a.setCoeff(std::clamp(inputDiffusion2, 0.f, MaxDiffusion));
+    inputDiffusion2b.setCoeff(std::clamp(inputDiffusion2, 0.f, MaxDiffusion));
+    decayCoeff = std::clamp(decay, 0.f, MaxDecay);
+    decayDiffusion1L.setCoeff(std::clamp(decayDiffusion1, 0.f, MaxDiffusion));
+    decayDiffusion2L.setCoeff(std::clamp(decayDiffusion2, 0.f, MaxDiffusion));
+    decayDiffusion1R.setCoeff(std::clamp(decayDiffusion1, 0.f, MaxDiffusion));
+    decayDiffusion2R.setCoeff(std::clamp(decayDiffusion2, 0.f, MaxDiffusion));
 }
 
-DelayLine::~DelayLine()
+DattorroReverb::~DattorroReverb()
 {
 }
 
-void DelayLine::clear()
+void DattorroReverb::clear()
 {
-    for (auto& b : delayBuffer)
-        std::fill(b.begin(), b.end(), 0.f);
+    preDelay.clear();
+    preDiffusionFilter.clear();
+    inputDiffusion1a.clear();
+    inputDiffusion1b.clear();
+    inputDiffusion2a.clear();
+    inputDiffusion2b.clear();
+    decayDiffusion1L.clear();
+    decayDelay1L.clear();
+    dampingL.clear();
+    decayDiffusion2L.clear();
+    decayDelay2L.clear();
+    decayDiffusion1R.clear();
+    decayDelay1R.clear();
+    dampingR.clear();
+    decayDiffusion2R.clear();
+    decayDelay2R.clear();
 }
 
-void DelayLine::prepare(unsigned int maxLengthSamples, unsigned int numChannels)
+void DattorroReverb::prepare(double newSampleRate, unsigned int numChannels)
 {
-    delayBuffer.clear();
-    for (unsigned int ch = 0; ch < numChannels; ++ch)
-        delayBuffer.emplace_back(maxLengthSamples, 0.f);
+    sampleRate = newSampleRate;
+
+    // Prepare pre-delay
+    preDelay.prepare(static_cast<unsigned int>(std::ceil(preDelayTimeMs * 0.001f * sampleRate)), numChannels);
+    preDiffusionFilter.prepare(sampleRate);
+
+    // Prepare input diffusion
+    inputDiffusion1a.prepare(sampleRate, InputDiffusion1a_Delay, numChannels);
+    inputDiffusion1b.prepare(sampleRate, InputDiffusion1b_Delay, numChannels);
+    inputDiffusion2a.prepare(sampleRate, InputDiffusion2a_Delay, numChannels);
+    inputDiffusion2b.prepare(sampleRate, InputDiffusion2b_Delay, numChannels);
+
+    // Prepare decay diffusion left channel
+    decayDiffusion1L.prepare(sampleRate, DecayDiffusion1L_Delay, numChannels);
+    decayDelay1L.prepare(static_cast<unsigned int>(std::ceil(DecayDelay1L_Delay * sampleRate)), numChannels);
+    dampingL.prepare(sampleRate);
+    decayDiffusion2L.prepare(sampleRate, DecayDiffusion2L_Delay, numChannels);
+    decayDelay2L.prepare(static_cast<unsigned int>(std::ceil(DecayDelay2L_Delay * sampleRate)), numChannels);
+
+    // Prepare decay diffusion right channel
+    decayDiffusion1R.prepare(sampleRate, DecayDiffusion1R_Delay, numChannels);
+    decayDelay1R.prepare(static_cast<unsigned int>(std::ceil(DecayDelay1R_Delay * sampleRate)), numChannels);
+    dampingR.prepare(sampleRate);
+    decayDiffusion2R.prepare(sampleRate, DecayDiffusion2R_Delay, numChannels);
+    decayDelay2R.prepare(static_cast<unsigned int>(std::ceil(DecayDelay2R_Delay * sampleRate)), numChannels);
+
+    // Clear buffers
+    clear();
 }
 
-void DelayLine::process(float* const* output, const float* const* input, unsigned int numChannels, unsigned int numSamples)
+void DattorroReverb::process(float* const* output, const float* const* input, unsigned int numChannels, unsigned int numSamples)
 {
-    const unsigned int delayBufferSize { static_cast<unsigned int>(delayBuffer[0].size()) };
-
-    numChannels = std::min(numChannels, static_cast<unsigned int>(delayBuffer.size()));
-    for (unsigned int ch = 0; ch < numChannels; ++ch)
-    {
-        unsigned int workingWriteIndex { writeIndex };
-        unsigned int workingReadIndex { (workingWriteIndex + delayBufferSize - delaySamples) % delayBufferSize };
-
-        for (unsigned int n = 0; n < numSamples; ++n)
-        {
-            const float x { input[ch][n] };
-            output[ch][n] = delayBuffer[ch][workingReadIndex];
-            delayBuffer[ch][workingWriteIndex] = x;
-
-            ++workingWriteIndex; workingWriteIndex %= delayBufferSize;
-            ++workingReadIndex; workingReadIndex %= delayBufferSize;
-        }
-    }
-
-    writeIndex += numSamples; writeIndex %= delayBufferSize;
+    
 }
 
-void DelayLine::process(float* output, const float* input, unsigned int numChannels)
+void DattorroReverb::process(float* output, const float* input, unsigned int numChannels)
 {
-    const unsigned int delayBufferSize{ static_cast<unsigned int>(delayBuffer[0].size()) };
-
-    numChannels = std::min(numChannels, static_cast<unsigned int>(delayBuffer.size()));
-
-    unsigned int workingWriteIndex { writeIndex };
-    unsigned int workingReadIndex { (workingWriteIndex + delayBufferSize - delaySamples) % delayBufferSize };
-
-    for (unsigned int ch = 0; ch < numChannels; ++ch)
-    {
-        const float x { input[ch] };
-        output[ch] = delayBuffer[ch][workingReadIndex];
-        delayBuffer[ch][workingWriteIndex] = x;
-    }
-
-    ++writeIndex; writeIndex %= delayBufferSize;
+    
 }
 
-void DelayLine::process(float* const* audioOutput, const float* const* audioInput, const float* const* modInput, unsigned int numChannels, unsigned int numSamples)
+void DattorroReverb::process(float* const* audioOutput, const float* const* audioInput, const float* const* modInput, unsigned int numChannels, unsigned int numSamples)
 {
-    const unsigned int delayBufferSize{ static_cast<unsigned int>(delayBuffer[0].size()) };
-
-    numChannels = std::min(numChannels, static_cast<unsigned int>(delayBuffer.size()));
-    for (unsigned int ch = 0; ch < numChannels; ++ch)
-    {
-        // Calculate base indices based on fixed delay time
-        unsigned int workingWriteIndex { writeIndex };
-        unsigned int workingReadIndex { (workingWriteIndex + delayBufferSize - delaySamples) % delayBufferSize };
-
-        for (unsigned int n = 0; n < numSamples; ++n)
-        {
-            // Linear interpolation coefficients
-            const float m { std::fmax(modInput[ch][n], 0.f) };
-            const float mFloor { std::floor(m) };
-            const float mFrac0 { m - mFloor };
-            const float mFrac1 { 1.f - mFrac0 };
-
-            // Calculate read indices
-            const unsigned int readIndex0 { (workingReadIndex + delayBufferSize - static_cast<unsigned int>(mFloor)) % delayBufferSize };
-            const unsigned int readIndex1 { (readIndex0 + delayBufferSize - 1u) % delayBufferSize };
-
-            // Read from delay line
-            const float read0 = delayBuffer[ch][readIndex0];
-            const float read1 = delayBuffer[ch][readIndex1];
-
-            // Read audio input
-            const float x { audioInput[ch][n] };
-
-            // Interpolate output
-            audioOutput[ch][n] = read0 * mFrac1 + read1 * mFrac0;
-
-            // Write input
-            delayBuffer[ch][workingWriteIndex] = x;
-
-            // Increament indices
-            ++workingWriteIndex; workingWriteIndex %= delayBufferSize;
-            ++workingReadIndex; workingReadIndex %= delayBufferSize;
-        }
-    }
-
-    // Update persistent write index
-    writeIndex += numSamples; writeIndex %= delayBufferSize;
+    
 }
 
-void DelayLine::process(float* audioOutput, const float* audioInput, const float* modInput, unsigned int numChannels)
+void DattorroReverb::process(float* audioOutput, const float* audioInput, const float* modInput, unsigned int numChannels)
 {
-    const unsigned int delayBufferSize{ static_cast<unsigned int>(delayBuffer[0].size()) };
-
-    // Calculate base indices based on fixed delay time
-    unsigned int workingWriteIndex { writeIndex };
-    unsigned int workingReadIndex { (workingWriteIndex + delayBufferSize - delaySamples) % delayBufferSize };
-
-    numChannels = std::min(numChannels, static_cast<unsigned int>(delayBuffer.size()));
-    for (unsigned int ch = 0; ch < numChannels; ++ch)
-    {
-        // Linear interpolation coefficients
-        const float m { std::fmax(modInput[ch], 0.f) };
-        const float mFloor { std::floor(m) };
-        const float mFrac0 { m - mFloor };
-        const float mFrac1 { 1.f - mFrac0 };
-
-        // Calculate read indeces
-        const unsigned int readIndex0 { (workingReadIndex + delayBufferSize - static_cast<unsigned int>(mFloor)) % delayBufferSize };
-        const unsigned int readIndex1 { (readIndex0 + delayBufferSize - 1u) % delayBufferSize };
-
-        // Read from delay line
-        const float read0 = delayBuffer[ch][readIndex0];
-        const float read1 = delayBuffer[ch][readIndex1];
-
-        // Read audio input
-        const float x { audioInput[ch] };
-
-        // Interpolate output
-        audioOutput[ch] = read0 * mFrac1 + read1 * mFrac0;
-
-        // Write input
-        delayBuffer[ch][workingWriteIndex] = x;
-    }
-
-    // Update persistent write index
-    ++writeIndex; writeIndex %= delayBufferSize;
+    
 }
 
-void DelayLine::setDelaySamples(unsigned int newDelaySamples)
+void DattorroReverb::setPreDelayTime(float newPreDelayMs)
 {
-    delaySamples = std::max(std::min(newDelaySamples, static_cast<unsigned int>(delayBuffer[0].size() - 1u)), 1u);
+    unsigned int newDelaySamples = static_cast<unsigned int>(std::round(preDelayTimeMs * 0.001f * sampleRate));
+    preDelay.setDelaySamples(newDelaySamples);
 }
 
+void DattorroReverb::setPreDiffusionBandwidth(float newBandwidth)
+{
+    float newValue = std::clamp(newBandwidth, 0.0f, MaxBandwidth);
+    preDiffusionFilter.setCoeff(newValue);
+}
+
+void DattorroReverb::setInputDiffusion1(float newCoeff)
+{
+    float newValue = std::clamp(newCoeff, 0.0f, MaxDiffusion);
+    inputDiffusion1a.setCoeff(newValue);
+    inputDiffusion1b.setCoeff(newValue);
+}
+
+void DattorroReverb::setInputDiffusion2(float newCoeff)
+{
+    float newValue = std::clamp(newCoeff, 0.0f, MaxDiffusion);
+    inputDiffusion2a.setCoeff(newValue);
+    inputDiffusion2b.setCoeff(newValue);
+}
+
+void DattorroReverb::setDecayDiffusion1(float newCoeff)
+{
+    float newValue = std::clamp(newCoeff, 0.0f, MaxDiffusion);
+    decayDiffusion1L.setCoeff(newValue);
+    decayDiffusion1R.setCoeff(newValue);
+}
+
+void DattorroReverb::setDamping(float newDamping)
+{
+    float newValue = std::clamp(newDamping, 0.0f, MaxDamping);
+    dampingL.setCoeff(newValue);
+    dampingR.setCoeff(newValue);
+}
+
+void DattorroReverb::setDecayDiffusion2(float newCoeff)
+{
+    float newValue = std::clamp(newCoeff, 0.0f, MaxDiffusion);
+    decayDiffusion2L.setCoeff(newValue);
+    decayDiffusion2R.setCoeff(newValue);
+}
+
+void DattorroReverb::setDecayCoefficient(float newDecayCoeff)
+{
+    decayCoeff = std::clamp(newDecayCoeff, 0.0f, MaxDecay);
+}
 
 }

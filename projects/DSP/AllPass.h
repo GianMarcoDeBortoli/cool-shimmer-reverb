@@ -32,8 +32,14 @@ public:
     // Set delay time in ms
     void setDelayTime(float newDelayMs);
 
-    // Process audio 
+    // Process block of audio
     void process(float* const* output, const float* const* input, unsigned int numChannels, unsigned int numSamples);
+
+    // Process single sample of audio
+    void process(float* output, const float* input, unsigned int numChannels);
+
+    // Get sample from delay line at requested index
+    float getSample(unsigned int channel, float index);
 
 private: 
     double sampleRate { 48000.0 };
