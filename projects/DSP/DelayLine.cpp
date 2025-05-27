@@ -157,10 +157,100 @@ void DelayLine::process(float* audioOutput, const float* audioInput, const float
     ++writeIndex; writeIndex %= delayBufferSize;
 }
 
+void DelayLine::process(float* audioOutput, const float* audioInput, const float* modInput, int channel)
+{
+    const unsigned int delayBufferSize{ static_cast<unsigned int>(delayBuffer[0].size()) };
+    const unsigned int numChannels{ static_cast<unsigned int>(delayBuffer.size()) };
+
+    // Calculate base indices based on fixed delay time
+    unsigned int workingWriteIndex { writeIndex };
+    unsigned int workingReadIndex { (workingWriteIndex + delayBufferSize - delaySamples) % delayBufferSize };
+
+    // Linear interpolation coefficients
+    const float m { std::fmax(modInput[channel], 0.f) };
+    const float mFloor { std::floor(m) };
+    const float mFrac0 { m - mFloor };
+    const float mFrac1 { 1.f - mFrac0 };
+
+    // Calculate read indeces
+    const unsigned int readIndex0 { (workingReadIndex + delayBufferSize - static_cast<unsigned int>(mFloor)) % delayBufferSize };
+    const unsigned int readIndex1 { (readIndex0 + delayBufferSize - 1u) % delayBufferSize };
+
+    // Read from delay line
+    const float read0 = delayBuffer[channel][readIndex0];
+    const float read1 = delayBuffer[channel][readIndex1];
+
+    // Read audio input
+    const float x { audioInput[channel] };
+
+    // Interpolate output
+    audioOutput[channel] = read0 * mFrac1 + read1 * mFrac0;
+
+    // Write input
+    delayBuffer[channel][workingWriteIndex] = x;
+
+    // Update persistent write index
+    ++writeIndex; writeIndex %= delayBufferSize;
+}
+
 void DelayLine::setDelaySamples(unsigned int newDelaySamples)
 {
     delaySamples = std::max(std::min(newDelaySamples, static_cast<unsigned int>(delayBuffer[0].size() - 1u)), 1u);
 }
 
+float DelayLine::getSample(unsigned int channel, float index) const
+{   
+    const unsigned int delayBufferSize{ static_cast<unsigned int>(delayBuffer[0].size()) };
+
+    index = std::clamp(index, 1.f, static_cast<float>(delayBufferSize - 1u));
+
+    // Linear interpolation coefficients
+    const float mFloor { std::floor(index) };
+    const float mFrac0 { index - mFloor };
+    const float mFrac1 { 1.f - mFrac0 };
+
+    // Base read index
+    unsigned int workingReadIndex { (writeIndex + delayBufferSize - static_cast<unsigned int>(mFloor)) % delayBufferSize };
+
+    // Read indices for interpolation
+    const unsigned int readIndex0 { (workingReadIndex + delayBufferSize - static_cast<unsigned int>(mFloor)) % delayBufferSize };
+    const unsigned int readIndex1 { (readIndex0 + delayBufferSize - 1u) % delayBufferSize };
+
+    // Read from delay line
+    const float read0 = delayBuffer[channel][readIndex0];
+    const float read1 = delayBuffer[channel][readIndex1];
+
+    // Interpolate output
+    float x = read0 * mFrac1 + read1 * mFrac0;
+    return x;
+}
+
+float DelayLine::getSample(unsigned int channel, float index, const float* modInput) const
+{   
+    const unsigned int delayBufferSize{ static_cast<unsigned int>(delayBuffer[0].size()) };
+
+    index = std::clamp(index, 1.f, static_cast<float>(delayBufferSize - 1u));
+
+    // Linear interpolation coefficients
+    const float m = std::floor(index) + std::fmax(modInput[channel], 0.f);
+    const float mFloor { m };
+    const float mFrac0 { m - mFloor };
+    const float mFrac1 { 1.f - mFrac0 };
+
+    // Base read index
+    unsigned int workingReadIndex { (writeIndex + delayBufferSize - static_cast<unsigned int>(mFloor)) % delayBufferSize };
+
+    // Read indices for interpolation
+    const unsigned int readIndex0 { (workingReadIndex + delayBufferSize - static_cast<unsigned int>(mFloor)) % delayBufferSize };
+    const unsigned int readIndex1 { (readIndex0 + delayBufferSize - 1u) % delayBufferSize };
+
+    // Read from delay line
+    const float read0 = delayBuffer[channel][readIndex0];
+    const float read1 = delayBuffer[channel][readIndex1];
+
+    // Interpolate output
+    float x = read0 * mFrac1 + read1 * mFrac0;
+    return x;
+}
 
 }

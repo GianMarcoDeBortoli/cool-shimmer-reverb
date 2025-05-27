@@ -49,28 +49,47 @@ void AllPass::setDelayTime(float newDelayMs)
 
 void AllPass::process(float* const* output, const float* const* input, unsigned int numChannels, unsigned int numSamples)
 {    
-
+    // Iterate over samples
     for (unsigned int n = 0; n < numSamples; ++n)
     {
-        // Compute the input to the delay line 
-        //
+        // Preallocate inputs to delay line
         float delayIn[2] { 0.f, 0.f };
-        for (unsigned int ch = 0; ch < numChannels; ++ch)
-        {
-            delayIn[ch] = -coeff * feedbackState[ch] + input[ch][n];
-        }
 
+        // Iterate over channels
         for (unsigned int ch = 0; ch < numChannels; ++ch)
         {
-            // Compute the output
+            // Compute the delay line input
+            delayIn[ch] = -coeff * feedbackState[ch] + input[ch][n];
+            // Compute the process output
             output[ch][n] = coeff * delayIn[ch] + feedbackState[ch];
         }
 
-        // Process delay
+        // Feed the delay line
         delayLine.process(feedbackState, delayIn, numChannels);
-        
+    }
+}
+
+void AllPass::process(float* output, const float* input, unsigned int numChannels)
+{
+    // Preallocate inputs to delay line
+    float delayIn[2] { 0.f, 0.f };
+
+    // Iterate over channels
+    for (unsigned int ch = 0; ch < numChannels; ++ch)
+    {
+        // Compute the delay line input
+        delayIn[ch] = -coeff * feedbackState[ch] + input[ch];
+        // Compute the process output
+        output[ch] = coeff * delayIn[ch] + feedbackState[ch];
     }
 
+    // Feed the delay line
+    delayLine.process(feedbackState, delayIn, numChannels);
+}
+
+float AllPass::getSample(unsigned int channel, float index)
+{
+    return delayLine.getSample(channel, index);
 }
 
 }
