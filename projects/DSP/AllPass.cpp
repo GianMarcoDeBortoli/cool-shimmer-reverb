@@ -49,24 +49,28 @@ void AllPass::setDelayTime(float newDelayMs)
 
 void AllPass::process(float* const* output, const float* const* input, unsigned int numChannels, unsigned int numSamples)
 {    
-    // Iterate over samples
+
     for (unsigned int n = 0; n < numSamples; ++n)
     {
-        // Preallocate inputs to delay line
+        // Compute the input to the delay line 
+        //
         float delayIn[2] { 0.f, 0.f };
-
-        // Iterate over channels
         for (unsigned int ch = 0; ch < numChannels; ++ch)
         {
-            // Compute the delay line input
             delayIn[ch] = -coeff * feedbackState[ch] + input[ch][n];
-            // Compute the process output
+        }
+
+        for (unsigned int ch = 0; ch < numChannels; ++ch)
+        {
+            // Compute the output
             output[ch][n] = coeff * delayIn[ch] + feedbackState[ch];
         }
 
-        // Feed the delay line
+        // Process delay
         delayLine.process(feedbackState, delayIn, numChannels);
+        
     }
+
 }
 
 void AllPass::process(float* output, const float* input, unsigned int numChannels)
