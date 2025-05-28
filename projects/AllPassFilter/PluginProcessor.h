@@ -10,17 +10,38 @@ namespace Param
     namespace ID
     {
         static const juce::String Enabled { "enabled" };
+        static const juce::String Coeff { "coeff" };
+        static const juce::String DelayTimeMs { "delay time ms" };
     }
 
     namespace Name
     {
         static const juce::String Enabled { "Enabled" };
+        static const juce::String Coeff { "Coefficient" };
+        static const juce::String DelayTimeMs { "Delay" };
     }
 
     namespace Range
     {
         static const juce::String EnabledOff { "Off" };
         static const juce::String EnabledOn { "On" };
+
+        static constexpr float CoeffDefault { 0.5f };
+        static constexpr float CoeffMin { -1.f };
+        static constexpr float CoeffMax { 1.f };
+        static constexpr float CoeffInc { 0.01f };
+        static constexpr float CoeffSkw { 0.5f };
+
+        static constexpr float DelayTimeDefault { 10.f };
+        static constexpr float DelayTimeMin { 1.f };
+        static constexpr float DelayTimeMax { 20.f };
+        static constexpr float DelayTimeInc { 0.01f };
+        static constexpr float DelayTimeSkw { 0.5f };
+    }
+
+    namespace Units
+    {
+        static const juce::String Ms { "ms" };
     }
 }
 
@@ -54,13 +75,15 @@ public:
     void changeProgramName(int, const juce::String&) override;
     //==============================================================================
 
-    static constexpr float MaxDelaySizeMs { 20.f };
     static constexpr int MaxChannels { 2 };
 
 private:
     mrta::ParameterManager parameterManager;
     DSP::AllPass AllPassFilter;
     DSP::Ramp<float> enableRamp;
+
+    float delayTimeMs;
+    float coeff;
 
     bool enabled { true };
     juce::AudioBuffer<float> fxBuffer;

@@ -8,7 +8,7 @@ namespace DSP
 class AllPass
 {
 public:
-    AllPass(float maxTimeMs, unsigned int maxNumChannels);
+    AllPass(float initDelayMs, float initCoeff, unsigned int initNumChannels);
     AllPass() = delete; // Prevent default constructor
 
     ~AllPass();
@@ -20,7 +20,7 @@ public:
     const AllPass& operator=(AllPass&&) = delete; // move assignment operator
 
     // Update sample rate, reallocates and clear internal buffers
-    void prepare(double sampleRate, float maxTimeMs, unsigned int numChannels);
+    void prepare(double sampleRate, unsigned int numChannels);
 
     // Clear content of internal buffer
     void clear();
@@ -40,19 +40,19 @@ public:
     // Get sample from delay line at requested index
     float getSample(unsigned int channel, float index);
 
+    static constexpr unsigned int MaxChannels { 2 };
+
 private: 
     double sampleRate { 48000.0 };
 
     // vector of delay lines of all sections
     DSP::DelayLine delayLine;
     
-    float delayTimeMs { 0.f };
-    float coeff { 0.f };
+    float delayTimeMs;
+    float coeff;
 
     // one state per channel
     float feedbackState[2] { 0.f, 0.f };
-
-    static constexpr float MaxChannels { 2 };
 };
 
 }

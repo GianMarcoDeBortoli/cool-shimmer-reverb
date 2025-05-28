@@ -3,11 +3,11 @@
 namespace DSP
 {
 
-AllPass::AllPass(float maxTimeMs, unsigned int maxNumChannels) :
-    delayLine(static_cast<unsigned int>(std::ceil(static_cast<float>(std::fmax(maxTimeMs, 1.f)) * static_cast<float>(0.001 * sampleRate))),
-               static_cast<unsigned int>(std::fmax(maxNumChannels, 1u))),
-    delayTimeMs { 20.0f },
-    coeff { 0.5f }
+AllPass::AllPass(float initDelayMs, float initCoeff, unsigned int initNumChannels) :
+    delayLine(static_cast<unsigned int>(std::ceil(std::fmax(initDelayMs, 1.f) * static_cast<float>(0.001 * sampleRate))),
+               static_cast<unsigned int>(std::min(std::max(initNumChannels, 1u), MaxChannels))),
+    delayTimeMs { initDelayMs },
+    coeff { initCoeff }
 {
 }
 
@@ -15,15 +15,10 @@ AllPass::~AllPass()
 {
 }
 
-void AllPass::prepare(double newSampleRate, float maxTimeMs, unsigned int numChannels)
+void AllPass::prepare(double newSampleRate, unsigned int newNumChannels)
 {
     sampleRate = newSampleRate;
-
-    delayLine.prepare(static_cast<unsigned int>(std::round(maxTimeMs * static_cast<float>(0.001 * sampleRate))), MaxChannels);
-    delayLine.setDelaySamples(1); // Keep at least 1 sample minimum fixed delay
-
-    setCoeff(0.5f);
-
+    delayLine.prepare(static_cast<unsigned int>(std::round(delayTimeMs * static_cast<float>(0.001 * sampleRate))), newNumChannels);
     clear();
 }
 
@@ -38,12 +33,12 @@ void AllPass::clear()
 
 void AllPass::setCoeff(const float newCoeff)
 {
-    coeff = newCoeff;
+    coeff = std::clamp(newCoeff, -0.999f, 0.999f);
 }
 
 void AllPass::setDelayTime(float newDelayMs)
 {
-    delayTimeMs = newDelayMs;
+    delayTimeMs = std::fmax(newDelayMs, 1.f);;
     delayLine.setDelaySamples(static_cast<unsigned int>(std::round(newDelayMs * static_cast<float>(0.001 * sampleRate))));
 }
 
