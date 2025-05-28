@@ -2,8 +2,9 @@
 
 #include <JuceHeader.h>
 #include "DelayLine.h"
-#include "AllPass.h"
 #include "LeakyIntegrator.h"
+#include "AllPass.h"
+#include "LFO.h"
 
 namespace DSP
 {
@@ -12,11 +13,20 @@ class DattorroReverb
 {
 public:
     // Constructor
-    DattorroReverb(double sampleRate, unsigned int numChannels,
-        float preDelayTimeMs, float bandwidth,
-        float inputDiffusion1, float inputDiffusion2,
-        float decayDiffusion1, float decayDiffusion2,
-        float damping, float decay);
+    DattorroReverb(
+        unsigned int initNumChannels,
+        unsigned int initPreDelaySamples,      // Predelay
+        float initToneControlCoeff,            // Tone control
+        float initInputDiffuserDelayMs_1,      // Input diffuser 1
+        float initInputDiffuserDelayMs_2,      // Input diffuser 2
+        float initInputDiffusionCoeff_1_2,     // Input diffuser 1 & 2
+        float initInputDiffuserDelayMs_3,      // Input diffuser 3
+        float initInputDiffuserDelayMs_4,      // Input diffuser 4
+        float initInputDiffusionCoeff_3_4,     // Input diffuser 3 & 4
+        LFO::LFOType initLFOType = LFO::Sin,   // LFO type
+        float initLFOFreqHz = 0.5f,            // LFO frequency in Hz
+        float initLFODepthMs = 0.f             // LFO depth in milliseconds
+    );
     // Destructor
     ~DattorroReverb();
 
@@ -32,80 +42,38 @@ public:
     void clear();
 
     // Prepare method
-    void prepare(double sampleRate, unsigned int numChannels);
+    void prepare(double newSampleRate, unsigned int newNumChannels, unsigned int newPreDelaySamples);
 
     // Process block of audio without modulation
     void process(float* const* output, const float* const* input, unsigned int numChannels, unsigned int numSamples);
 
-    // Process single sample of audio without modulation
-    void process(float* output, const float* input, unsigned int numChannels);
-
-    // Process block of audio with modulation
-    void process(float* const* audioOutput, const float* const* audioInput, const float* const* modInput,
-                 unsigned int numChannels, unsigned int numSamples);
-
-    // Process single sample of audio with modulation
-    void process(float* audioOutput, const float* audioInput, const float* modInput, unsigned int numChannels);
-
-    // Set methods
-    void setPreDelayTime(float newPreDelayMs);
-    void setPreDiffusionBandwidth(float newBandwidth);
-    void setInputDiffusion1(float newCoeff);
-    void setInputDiffusion2(float newCoeff);
-    void setDecayDiffusion1(float newCoeff);
-    void setDamping(float newDamping);
-    void setDecayDiffusion2(float newCoeff);
-    void setDecayCoefficient(float newDecayCoeff);
+    // ==================================================
+    // Constants
+    static constexpr unsigned int MaxChannels { 2 };
 
     // ==================================================
-    static constexpr float MaxChannels { 2 };
+    // Set methods
+    void setPreDelay(unsigned int newPreDelaySamples);
+    void setToneControl(float newCoeff);
+    void setInputDiffusionCoeff_1(float newDiffCoeff);
+    void setInputDiffusionCoeff_2(float newDiffCoeff);
 
-    static constexpr float MaxBandwidth { 0.999999f };
-    static constexpr float MaxDiffusion{ 0.999999f };
-    static constexpr float MaxDamping { 0.020f };
-    static constexpr float MaxDecay { 0.999999f };
-
-    static constexpr float InputDiffusion1a_Delay {142.f / 30000.f};
-    static constexpr float InputDiffusion1b_Delay {107.f / 30000.f};
-    static constexpr float InputDiffusion2a_Delay {379.f / 30000.f};
-    static constexpr float InputDiffusion2b_Delay {277.f / 30000.f};
-    static constexpr float DecayDiffusion1L_Delay {672.f / 30000.f};
-    static constexpr float DecayDelay1L_Delay {4453.f / 30000.f};
-    static constexpr float DecayDiffusion2L_Delay {1800.f / 30000.f};
-    static constexpr float DecayDelay2L_Delay {3720.f / 30000.f};
-    static constexpr float DecayDiffusion1R_Delay {908.f / 30000.f};
-    static constexpr float DecayDelay1R_Delay {4217.f / 30000.f};
-    static constexpr float DecayDiffusion2R_Delay {2656.f / 30000.f};
-    static constexpr float DecayDelay2R_Delay {3163.f / 30000.f};
+    void setLFOtype(LFO::LFOType newModType);
+    void setLFOfreqHz(float newModRateHz);
+    void setLFOdepthMs(float newModDepthMs);
 
 private:
-    double sampleRate { 48000.0 };
-
-    // Pre-diffusion phase
+    // Predelay
     DSP::DelayLine preDelay;
-    float preDelayTimeMs;
-    DSP::LeakyIntegrator preDiffusionFilter;
-    // Diffusion phase
-    DSP::AllPass inputDiffusion1a;
-    DSP::AllPass inputDiffusion1b;
-    DSP::AllPass inputDiffusion2a;
-    DSP::AllPass inputDiffusion2b;
-    // Decay phase left channel
-    juce::AudioBuffer<float> recursionLeft;
-    DSP::AllPass decayDiffusion1L;
-    DSP::DelayLine decayDelay1L;
-    DSP::LeakyIntegrator dampingL;
-    DSP::AllPass decayDiffusion2L;
-    DSP::DelayLine decayDelay2L;
-    // Decay phase right channel
-    juce::AudioBuffer<float> recursionRight;
-    DSP::AllPass decayDiffusion1R;
-    DSP::DelayLine decayDelay1R;
-    DSP::LeakyIntegrator dampingR;
-    DSP::AllPass decayDiffusion2R;
-    DSP::DelayLine decayDelay2R;
-    // Decay coefficient
-    float decayCoeff;
+    // Tone control
+    DSP::LeakyIntegrator toneControl;
+    // Input Diffusers
+    DSP::AllPass inputDiffuser_1;
+    DSP::AllPass inputDiffuser_2;
+    DSP::AllPass inputDiffuser_3;
+    DSP::AllPass inputDiffuser_4;
+    // LFO for allpass delay line modulation
+    DSP::LFO lfo;
 };
 
 }

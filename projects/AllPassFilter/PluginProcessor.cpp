@@ -71,8 +71,18 @@ void AllPassFilterProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce
     // for (int ch = 0; ch < static_cast<int>(numChannels); ++ch)
     //     fxBuffer.copyFrom(ch, 0, buffer, ch, 0, static_cast<int>(numSamples));
 
+    for (unsigned int n = 0; n < numSamples; ++n)
+    {
+        for (unsigned int ch = 0; ch < numChannels; ++ch)
+        {
+            float x = buffer.getSample(ch, n);
+            // Process the all-pass filter
+            AllPassFilter.process(&x, &x, 1u);
 
-    AllPassFilter.process(buffer.getArrayOfWritePointers(), buffer.getArrayOfReadPointers(), numChannels, numSamples);
+            buffer.setSample(ch, n, x);
+        }
+    }
+    // AllPassFilter.process(buffer.getArrayOfWritePointers(), buffer.getArrayOfReadPointers(), numChannels, numSamples);
     enableRamp.applyGain(buffer.getArrayOfWritePointers(), numChannels, numSamples);
 
     // for (int ch = 0; ch < static_cast<int>(numChannels); ++ch)

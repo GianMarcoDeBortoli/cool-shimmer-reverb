@@ -5,7 +5,7 @@
 namespace DSP
 {
 
-LeakyIntegrator::LeakyIntegrator(const float initCoeff) :
+LeakyIntegrator::LeakyIntegrator(float initCoeff) :
     coeffRamp(0.01f)
 {
     coeff = std::clamp(initCoeff, 0.f, 1.f);
@@ -28,7 +28,7 @@ void LeakyIntegrator::clear()
     feedbackState[1] = 0.f;
 }
 
-void LeakyIntegrator::setCoeff(const float newCoeff)
+void LeakyIntegrator::setCoeff(float newCoeff)
 {
     coeff = std::clamp(newCoeff, 0.f, 1.f);
     coeffRamp.setTarget(coeff);

@@ -26,7 +26,7 @@ void DelayLine::prepare(unsigned int maxLengthSamples, unsigned int numChannels)
 {
     delayBuffer.clear();
     for (unsigned int ch = 0; ch < numChannels; ++ch)
-        delayBuffer.emplace_back(maxLengthSamples, 0.f);
+        delayBuffer.emplace_back(std::max(maxLengthSamples, 1u), 0.f);
 }
 
 void DelayLine::process(float* const* output, const float* const* input, unsigned int numChannels, unsigned int numSamples)
@@ -152,42 +152,6 @@ void DelayLine::process(float* audioOutput, const float* audioInput, const float
         // Write input
         delayBuffer[ch][workingWriteIndex] = x;
     }
-
-    // Update persistent write index
-    ++writeIndex; writeIndex %= delayBufferSize;
-}
-
-void DelayLine::process(float* audioOutput, const float* audioInput, const float* modInput, int channel)
-{
-    const unsigned int delayBufferSize{ static_cast<unsigned int>(delayBuffer[0].size()) };
-    const unsigned int numChannels{ static_cast<unsigned int>(delayBuffer.size()) };
-
-    // Calculate base indices based on fixed delay time
-    unsigned int workingWriteIndex { writeIndex };
-    unsigned int workingReadIndex { (workingWriteIndex + delayBufferSize - delaySamples) % delayBufferSize };
-
-    // Linear interpolation coefficients
-    const float m { std::fmax(modInput[channel], 0.f) };
-    const float mFloor { std::floor(m) };
-    const float mFrac0 { m - mFloor };
-    const float mFrac1 { 1.f - mFrac0 };
-
-    // Calculate read indeces
-    const unsigned int readIndex0 { (workingReadIndex + delayBufferSize - static_cast<unsigned int>(mFloor)) % delayBufferSize };
-    const unsigned int readIndex1 { (readIndex0 + delayBufferSize - 1u) % delayBufferSize };
-
-    // Read from delay line
-    const float read0 = delayBuffer[channel][readIndex0];
-    const float read1 = delayBuffer[channel][readIndex1];
-
-    // Read audio input
-    const float x { audioInput[channel] };
-
-    // Interpolate output
-    audioOutput[channel] = read0 * mFrac1 + read1 * mFrac0;
-
-    // Write input
-    delayBuffer[channel][workingWriteIndex] = x;
 
     // Update persistent write index
     ++writeIndex; writeIndex %= delayBufferSize;

@@ -44,9 +44,6 @@ public:
     // Single sample flavour of the modulated delay time processing
     void process(float* audioOutput, const float* audioInput, const float* modInput, unsigned int numChannels);
 
-    // Single-channel single-sample flavour of the modulated delay time processing
-    void process(float* audioOutput, const float* audioInput, const float* modInput, int channel);
-
     // Set the current delay time in samples
     void setDelaySamples(unsigned int samples);
 

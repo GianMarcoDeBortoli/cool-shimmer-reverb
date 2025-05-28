@@ -386,3 +386,25 @@ add_plugin(delay_line
         ${delay_line_source}
         ${dsp_source}
         ${gui_source})
+
+# delay line project
+set(dattorro_reverb_source ${CMAKE_CURRENT_SOURCE_DIR}/projects/DattorroReverb)
+
+add_plugin(dattorro_reverb
+    VERSION 0.1.0
+    PLUGIN_NAME "Dattorro Reverb"
+    PROD_NAME DattorroReverb
+    PROD_CODE DRev
+    SYNTH FALSE
+    SOURCES
+        ${dattorro_reverb_source}/PluginEditor.cpp
+        ${dattorro_reverb_source}/PluginProcessor.cpp
+        ${dsp_source}/DattorroReverb.cpp
+        ${dsp_source}/DelayLine.cpp
+        ${dsp_source}/LeakyIntegrator.cpp
+        ${dsp_source}/AllPass.cpp
+        ${dsp_source}/LFO.cpp
+    INCLUDE_DIRS
+        ${dattorro_reverb_source}
+        ${dsp_source}
+        ${gui_source})

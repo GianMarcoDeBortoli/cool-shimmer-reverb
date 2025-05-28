@@ -37,6 +37,9 @@ public:
     // Process single sample of audio
     void process(float* output, const float* input, unsigned int numChannels);
 
+    // Process single sample of audio with modulation
+    void process(float* output, const float* input, unsigned int numChannels, const float* modInput);
+
     // Get sample from delay line at requested index
     float getSample(unsigned int channel, float index);
 
