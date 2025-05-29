@@ -21,7 +21,7 @@ namespace Param
         static const juce::String LFOOffsetMs { "lfo_offset_ms" };
         static const juce::String DecayDiffCoeff_1 { "decay_diffusion_coeff_1" };
         static const juce::String DampFilterCoeff { "damping_filter_coeff" };
-        static const juce::String DampCoeff { "damping_coeff" };
+        static const juce::String DecayCoeff { "decay_coeff" };
         static const juce::String DecayDiffCoeff_2 { "decay_diffusion_coeff_2" };
     }
 
@@ -38,7 +38,7 @@ namespace Param
         static const juce::String LFOOffsetMs { "LFO Offset (ms)" };
         static const juce::String DecayDiffCoeff_1 { "Decay Diffusion 1" };
         static const juce::String DampFilterCoeff { "Damping Filter Coefficient" };
-        static const juce::String DampCoeff { "Damping Coefficient" };
+        static const juce::String DecayCoeff { "Decay Coefficient" };
         static const juce::String DecayDiffCoeff_2 { "Decay Diffusion 2" };
     }
 
@@ -48,19 +48,20 @@ namespace Param
         static const juce::String EnabledOn { "On" };
         static constexpr bool EnabledDefault { true };
         
-        static constexpr float PreDelayDefault { 10.f };
+        static constexpr float PreDelayDefault { 20.f };
         static constexpr float PreDelayMin { 0.f };
         static constexpr float PreDelayMax { 1000.f };
         static constexpr float PreDelayInc { 1.f };
         static constexpr float PreDelaySkw { 1.f };
 
-        static constexpr float ToneControlDefault { 0.5f };
+        static constexpr float ToneControlDefault { 0.9995f };
         static constexpr float ToneControlMin { 0.f };
         static constexpr float ToneControlMax { 1.f };
         static constexpr float ToneControlInc { 0.01f };
         static constexpr float ToneControlSkw { 0.5f };
 
-        static constexpr float InputDiffCoeffDefault { 0.5f };
+        static constexpr float InputDiffCoeff1Default { 0.750f };
+        static constexpr float InputDiffCoeff2Default { 0.625f };
         static constexpr float InputDiffCoeffMin { 0.f };
         static constexpr float InputDiffCoeffMax { 1.f };
         static constexpr float InputDiffCoeffInc { 0.01f };
@@ -70,7 +71,7 @@ namespace Param
         static const juce::String LFOTypeTri { "Triangle" };
         static constexpr unsigned int LFOTypeDefault { 0 };
 
-        static constexpr float LFOFreqDefault { 10.f };
+        static constexpr float LFOFreqDefault { 0.5f };
         static constexpr float LFOFreqMin { 0.f };
         static constexpr float LFOFreqMax { 10.f };
         static constexpr float LFOFreqInc { 0.01f };
@@ -88,25 +89,25 @@ namespace Param
         static constexpr float LFOOffsetInc { 0.01f };
         static constexpr float LFOOffsetSkw { 1.f };
 
-        static constexpr float DecayDiffCoeff1Default { 0.5f };
+        static constexpr float DecayDiffCoeff1Default { 0.70f };
         static constexpr float DecayDiffCoeff1Min { 0.f };
         static constexpr float DecayDiffCoeff1Max { 1.f };
         static constexpr float DecayDiffCoeff1Inc { 0.01f };
         static constexpr float DecayDiffCoeff1Skw { 0.5f };
 
-        static constexpr float DampFilterCoeffDefault { 0.5f };
+        static constexpr float DampFilterCoeffDefault { 0.005f };
         static constexpr float DampFilterCoeffMin { 0.f };
         static constexpr float DampFilterCoeffMax { 1.f };
         static constexpr float DampFilterCoeffInc { 0.01f };
         static constexpr float DampFilterCoeffSkw { 0.5f };
 
-        static constexpr float DampCoeffDefault { 0.5f };
-        static constexpr float DampCoeffMin { 0.f };
-        static constexpr float DampCoeffMax { 1.f };
-        static constexpr float DampCoeffInc { 0.01f };
-        static constexpr float DampCoeffSkw { 0.5f };
+        static constexpr float DecayCoeffDefault { 0.5f };
+        static constexpr float DecayCoeffMin { 0.f };
+        static constexpr float DecayCoeffMax { 1.f };
+        static constexpr float DecayCoeffInc { 0.01f };
+        static constexpr float DecayCoeffSkw { 0.5f };
 
-        static constexpr float DecayDiffCoeff2Default { 0.5f };
+        static constexpr float DecayDiffCoeff2Default { 0.50f };
         static constexpr float DecayDiffCoeff2Min { 0.f };
         static constexpr float DecayDiffCoeff2Max { 1.f };
         static constexpr float DecayDiffCoeff2Inc { 0.01f };
@@ -178,7 +179,8 @@ private:
     float decayDiffusionCoeff_1;
     // Damping
     float dampingFilterCoeff;
-    float dampingCoeff;
+    // Decay
+    float decayCoeff;
     // Decay diffusion 2
     float decayDiffusionCoeff_2;
 
