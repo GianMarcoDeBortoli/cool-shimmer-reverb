@@ -48,10 +48,7 @@ public:
     void setDelaySamples(unsigned int samples);
 
     // Get sample at requested index
-    float getSample(unsigned int channel, float index) const;
-
-     // Get sample at requested index with modulation
-    float getSample(unsigned int channel, float index, const float* modInput) const;
+    float getSample(unsigned int channel, unsigned int index) const;
 
 private:
     std::vector<std::vector<float>> delayBuffer;

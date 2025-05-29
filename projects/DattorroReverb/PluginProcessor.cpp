@@ -9,38 +9,50 @@ static const std::vector<mrta::ParameterInfo> parameters
     { Param::ID::Enabled,  Param::Name::Enabled,   Param::Range::EnabledOff,   Param::Range::EnabledOn, Param::Range::EnabledDefault },
     { Param::ID::PreDelay, Param::Name::PreDelay,  Param::Units::Ms, Param::Range::PreDelayDefault, Param::Range::PreDelayMin, Param::Range::PreDelayMax, Param::Range::PreDelayInc, Param::Range::PreDelaySkw },
     { Param::ID::ToneControl, Param::Name::ToneControl, "", Param::Range::ToneControlDefault, Param::Range::ToneControlMin, Param::Range::ToneControlMax, Param::Range::ToneControlInc, Param::Range::ToneControlSkw },
-    { Param::ID::InDiffCoeff_1, Param::Name::InDiffCoeff_1, "", Param::Range::InDiffCoeffDefault, Param::Range::InDiffCoeffMin, Param::Range::InDiffCoeffMax, Param::Range::InDiffCoeffInc, Param::Range::InDiffCoeffSkw },
-    { Param::ID::InDiffCoeff_2, Param::Name::InDiffCoeff_2, "", Param::Range::InDiffCoeffDefault, Param::Range::InDiffCoeffMin, Param::Range::InDiffCoeffMax, Param::Range::InDiffCoeffInc, Param::Range::InDiffCoeffSkw },
-    {Param::ID::LFOType, Param::Name::LFOType, Param::Range::LFOTypeSin, Param::Range::LFOTypeTri, Param::Range::LFOTypeDefault},
-    {Param::ID::LFOFreqHz, Param::Name::LFOFreqHz, Param::Units::Hz, Param::Range::LFOFreqDefault, Param::Range::LFOFreqMin, Param::Range::LFOFreqMax, Param::Range::LFOFreqInc, Param::Range::LFOFreqSkw},
-    {Param::ID::LFODepthMs, Param::Name::LFODepthMs, Param::Units::Ms, Param::Range::LFODepthDefault, Param::Range::LFODepthMin, Param::Range::LFODepthMax, Param::Range::LFODepthInc, Param::Range::LFODepthSkw}
+    { Param::ID::InputDiffCoeff_1, Param::Name::InputDiffCoeff_1, "", Param::Range::InputDiffCoeffDefault, Param::Range::InputDiffCoeffMin, Param::Range::InputDiffCoeffMax, Param::Range::InputDiffCoeffInc, Param::Range::InputDiffCoeffSkw },
+    { Param::ID::InputDiffCoeff_2, Param::Name::InputDiffCoeff_2, "", Param::Range::InputDiffCoeffDefault, Param::Range::InputDiffCoeffMin, Param::Range::InputDiffCoeffMax, Param::Range::InputDiffCoeffInc, Param::Range::InputDiffCoeffSkw },
+    // {Param::ID::LFOType, Param::Name::LFOType, Param::Range::LFOTypeSin, Param::Range::LFOTypeTri, Param::Range::LFOTypeDefault},
+    // {Param::ID::LFOFreqHz, Param::Name::LFOFreqHz, Param::Units::Hz, Param::Range::LFOFreqDefault, Param::Range::LFOFreqMin, Param::Range::LFOFreqMax, Param::Range::LFOFreqInc, Param::Range::LFOFreqSkw},
+    // {Param::ID::LFODepthMs, Param::Name::LFODepthMs, Param::Units::Ms, Param::Range::LFODepthDefault, Param::Range::LFODepthMin, Param::Range::LFODepthMax, Param::Range::LFODepthInc, Param::Range::LFODepthSkw},
+    // {Param::ID::LFOOffsetMs, Param::Name::LFOOffsetMs, Param::Units::Ms, Param::Range::LFOOffsetDefault, Param::Range::LFOOffsetMin, Param::Range::LFOOffsetMax, Param::Range::LFOOffsetInc, Param::Range::LFOOffsetSkw},
+    {Param::ID::DecayDiffCoeff_1, Param::Name::DecayDiffCoeff_1, "", Param::Range::DecayDiffCoeff1Default, Param::Range::DecayDiffCoeff1Min, Param::Range::DecayDiffCoeff1Max, Param::Range::DecayDiffCoeff1Inc, Param::Range::DecayDiffCoeff1Skw},
+    {Param::ID::DampFilterCoeff, Param::Name::DampFilterCoeff, "", Param::Range::DampFilterCoeffDefault, Param::Range::DampFilterCoeffMin, Param::Range::DampFilterCoeffMax, Param::Range::DampFilterCoeffInc, Param::Range::DampFilterCoeffSkw},
+    {Param::ID::DampCoeff, Param::Name::DampCoeff, "", Param::Range::DampCoeffDefault, Param::Range::DampCoeffMin, Param::Range::DampCoeffMax, Param::Range::DampCoeffInc, Param::Range::DampCoeffSkw},
+    {Param::ID::DecayDiffCoeff_2, Param::Name::DecayDiffCoeff_2, "", Param::Range::DecayDiffCoeff2Default, Param::Range::DecayDiffCoeff2Min, Param::Range::DecayDiffCoeff2Max, Param::Range::DecayDiffCoeff2Inc, Param::Range::DecayDiffCoeff2Skw},
 };
 
 DattorroReverbProcessor::DattorroReverbProcessor():
     parameterManager(*this, ProjectInfo::projectName, parameters),
     dattorroReverb(
+        sampleRate,
         MaxChannels,
         static_cast<unsigned int>(std::round(Param::Range::PreDelayMax * static_cast<float>(0.001 * sampleRate))),
         Param::Range::ToneControlDefault,
-        inputDiffDelayMs_1,
-        inputDiffDelayMs_2,
-        Param::Range::InDiffCoeffDefault,
-        inputDiffDelayMs_3,
-        inputDiffDelayMs_4,
-        Param::Range::InDiffCoeffDefault,
+        Param::Range::InputDiffCoeffDefault,
+        Param::Range::InputDiffCoeffDefault,
         static_cast<DSP::LFO::LFOType>(Param::Range::LFOTypeDefault),
         Param::Range::LFOFreqDefault,
-        Param::Range::LFODepthDefault
+        Param::Range::LFODepthDefault,
+        Param::Range::LFODepthDefault,
+        Param::Range::DecayDiffCoeff1Default,
+        Param::Range::DampFilterCoeffDefault,
+        Param::Range::DampCoeffDefault,
+        Param::Range::DecayDiffCoeff2Default
     ),
     enabled { Param::Range::EnabledDefault },
     enableRamp(0.05f),
     preDelayMs { Param::Range::PreDelayDefault },
     toneControl { Param::Range::ToneControlDefault },
-    inputDiffusionCoeff_1 { Param::Range::InDiffCoeffDefault },
-    inputDiffusionCoeff_2 { Param::Range::InDiffCoeffDefault },
+    inputDiffusionCoeff_1 { Param::Range::InputDiffCoeffDefault },
+    inputDiffusionCoeff_2 { Param::Range::InputDiffCoeffDefault },
     lfoType { Param::Range::LFOTypeDefault },
     lfoFreqHz { Param::Range::LFOFreqDefault },
-    lfoDepthMs { Param::Range::LFODepthDefault }
+    lfoDepthMs { Param::Range::LFODepthDefault },
+    lfoOffsetMs { Param::Range::LFODepthDefault },
+    decayDiffusionCoeff_1 { Param::Range::DecayDiffCoeff1Default },
+    dampingFilterCoeff { Param::Range::DampFilterCoeffDefault },
+    dampingCoeff { Param::Range::DampCoeffDefault },
+    decayDiffusionCoeff_2 { Param::Range::DecayDiffCoeff2Default }
 {
     parameterManager.registerParameterCallback(Param::ID::Enabled,
     [this](float newValue, bool force)
@@ -61,16 +73,16 @@ DattorroReverbProcessor::DattorroReverbProcessor():
         toneControl = std::clamp(newToneControl, Param::Range::ToneControlMin, Param::Range::ToneControlMax);
         dattorroReverb.setToneControl(toneControl);
     });
-    parameterManager.registerParameterCallback(Param::ID::InDiffCoeff_1,
+    parameterManager.registerParameterCallback(Param::ID::InputDiffCoeff_1,
     [this](float newInDiffCoeff, bool /*force*/)
     {
-        inputDiffusionCoeff_1 = std::clamp(newInDiffCoeff, Param::Range::InDiffCoeffMin, Param::Range::InDiffCoeffMax);
+        inputDiffusionCoeff_1 = std::clamp(newInDiffCoeff, Param::Range::InputDiffCoeffMin, Param::Range::InputDiffCoeffMax);
         dattorroReverb.setInputDiffusionCoeff_1(inputDiffusionCoeff_1);
     });
-    parameterManager.registerParameterCallback(Param::ID::InDiffCoeff_2,
+    parameterManager.registerParameterCallback(Param::ID::InputDiffCoeff_2,
     [this](float newInDiffCoeff, bool /*force*/)
     {
-        inputDiffusionCoeff_2 = std::clamp(newInDiffCoeff, Param::Range::InDiffCoeffMin, Param::Range::InDiffCoeffMax);
+        inputDiffusionCoeff_2 = std::clamp(newInDiffCoeff, Param::Range::InputDiffCoeffMin, Param::Range::InputDiffCoeffMax);
         dattorroReverb.setInputDiffusionCoeff_2(inputDiffusionCoeff_2);
     });
     parameterManager.registerParameterCallback(Param::ID::LFOType,
@@ -91,6 +103,36 @@ DattorroReverbProcessor::DattorroReverbProcessor():
     {
         lfoDepthMs = std::clamp(newLFODepthMs, Param::Range::LFODepthMin, Param::Range::LFODepthMax);
         dattorroReverb.setLFOdepthMs(lfoDepthMs);
+    });
+    parameterManager.registerParameterCallback(Param::ID::LFOOffsetMs,
+    [this](float newLFOOffsetMs, bool /*force*/)
+    {
+        lfoOffsetMs = std::clamp(newLFOOffsetMs, Param::Range::LFOOffsetMin, Param::Range::LFOOffsetMax);
+        dattorroReverb.setLFOoffsetMs(lfoOffsetMs);
+    });
+    parameterManager.registerParameterCallback(Param::ID::DecayDiffCoeff_1,
+    [this](float newDecayDiffCoeff, bool /*force*/)
+    {
+        decayDiffusionCoeff_1 = std::clamp(newDecayDiffCoeff, Param::Range::DecayDiffCoeff1Min, Param::Range::DecayDiffCoeff1Max);
+        dattorroReverb.setDecayDiffusionCoeff_1(decayDiffusionCoeff_1);
+    });
+    parameterManager.registerParameterCallback(Param::ID::DampFilterCoeff,
+    [this](float newDampFilterCoeff, bool /*force*/)
+    {
+        dampingFilterCoeff = std::clamp(newDampFilterCoeff, Param::Range::DampFilterCoeffMin, Param::Range::DampFilterCoeffMax);
+        dattorroReverb.setDampingFilterCoeff(dampingFilterCoeff);
+    });
+    parameterManager.registerParameterCallback(Param::ID::DampCoeff,
+    [this](float newDampCoeff, bool /*force*/)
+    {
+        dampingCoeff = std::clamp(newDampCoeff, Param::Range::DampCoeffMin, Param::Range::DampCoeffMax);
+        dattorroReverb.setDampingCoeff(dampingCoeff);
+    });
+    parameterManager.registerParameterCallback(Param::ID::DecayDiffCoeff_2,
+    [this](float newDecayDiffCoeff, bool /*force*/)
+    {
+        decayDiffusionCoeff_2 = std::clamp(newDecayDiffCoeff, Param::Range::DecayDiffCoeff2Min, Param::Range::DecayDiffCoeff2Max);
+        dattorroReverb.setDecayDiffusionCoeff_2(decayDiffusionCoeff_2);
     });
 }
 

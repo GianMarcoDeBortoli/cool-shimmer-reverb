@@ -4,11 +4,12 @@ namespace DSP
 {
 
 AllPass::AllPass(float initDelayMs, float initCoeff, unsigned int initNumChannels) :
-    delayLine(static_cast<unsigned int>(std::ceil(std::fmax(initDelayMs, 1.f) * static_cast<float>(0.001 * sampleRate))),
+    delayLine(static_cast<unsigned int>(std::round(initDelayMs * static_cast<float>(0.001 * sampleRate))),
                static_cast<unsigned int>(std::min(std::max(initNumChannels, 1u), MaxChannels))),
     delayTimeMs { initDelayMs },
     coeff { initCoeff }
 {
+    setDelayTime(delayTimeMs);
 }
 
 AllPass::~AllPass()
@@ -38,7 +39,6 @@ void AllPass::setCoeff(const float newCoeff)
 
 void AllPass::setDelayTime(float newDelayMs)
 {
-    delayTimeMs = std::fmax(newDelayMs, 1.f);;
     delayLine.setDelaySamples(static_cast<unsigned int>(std::round(newDelayMs * static_cast<float>(0.001 * sampleRate))));
 }
 
@@ -104,7 +104,7 @@ void AllPass::process(float*output, const float* input, unsigned int numChannels
     delayLine.process(feedbackState, delayIn, modInput, numChannels);
 }
 
-float AllPass::getSample(unsigned int channel, float index)
+float AllPass::getSample(unsigned int channel, unsigned int index)
 {
     return delayLine.getSample(channel, index);
 }

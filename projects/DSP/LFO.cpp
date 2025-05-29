@@ -7,17 +7,21 @@ namespace DSP
 LFO::LFO(
     LFOType initType,
     float initFreq,
-    float initDepthMs
+    float initDepthMs,
+    float initOffsetMs
 ) :
     type { initType },
     frequency { std::fmax(initFreq, 0.f) }, // avoid zero frequency
-    depthRamp(0.01f)
+    depthRamp(0.01f),
+    offsetRamp(0.01f)
 {
     setFrequency(frequency);
     setDepth(initDepthMs);
+    setOffset(initOffsetMs);
     
     // reset states
-    phaseState = 0.f;
+    phaseState[0] = 0.f;
+    phaseState[1] = static_cast<float>(M_PI / 2.0); // offset for stereo LFO
 }
 
 LFO::~LFO()
@@ -32,39 +36,35 @@ void LFO::prepare(double newSampleRate)
     phaseInc = static_cast<float>(2.0 * M_PI / sampleRate) * frequency;
 
     // reset states
-    phaseState = 0.f;
+    phaseState[0] = 0.f;
+    phaseState[1] = static_cast<float>(M_PI / 2.0); // offset for stereo LFO
 }
 
-float LFO::process()
+float* LFO::process()
 {
-    float osc { 0.f };
-
     switch (type)
     {
     case Sin:
-        osc = 0.5f + 0.5f * std::sin(phaseState);
+        osc[0] = 0.5f + 0.5f * std::sin(phaseState[0]);
+        osc[1] = 0.5f + 0.5f * std::sin(phaseState[1]);
         break;
 
     case Tri:
-        osc = std::fabs(phaseState - static_cast<float>(M_PI)) / static_cast<float>(M_PI);
+        osc[0] = std::fabs(phaseState[0] - static_cast<float>(M_PI)) / static_cast<float>(M_PI);
+        osc[1] = std::fabs(phaseState[1] - static_cast<float>(M_PI)) / static_cast<float>(M_PI);
         break;
 
     default: break;
     }
 
-    phaseState = std::fmod(phaseState + phaseInc, static_cast<float>(2 * M_PI));
+    phaseState[0] = std::fmod(phaseState[0] + phaseInc, static_cast<float>(2 * M_PI));
+    phaseState[1] = std::fmod(phaseState[1] + phaseInc, static_cast<float>(2 * M_PI));
 
     // Apply mod depth and offset ramps
-    depthRamp.applyGain(&osc, 1u);
+    depthRamp.applyGain(osc, 2u);
+    offsetRamp.applySum(osc, 2u);
 
     return osc;
-}
-
-void LFO::setFrequency(float freqHz)
-{
-    frequency = std::fmax(freqHz, 0.f); // avoid zero frequency
-
-    phaseInc = static_cast<float>(2.0 * M_PI / sampleRate) * frequency;
 }
 
 void LFO::setType(LFOType newType)
@@ -72,13 +72,26 @@ void LFO::setType(LFOType newType)
     type = newType;
 
     // reset states
-    phaseState = 0.f;
+    phaseState[0] = 0.f;
+    phaseState[1] = 0.f;
 }
 
-void LFO::setDepth(float depthMs)
+void LFO::setFrequency(float newFreqHz)
 {
-    depthMs = std::fmax(depthMs, 0.f);
+    frequency = std::fmax(newFreqHz, 0.f);
+    phaseInc = static_cast<float>(2.0 * M_PI / sampleRate) * frequency;
+}
+
+void LFO::setDepth(float newDepthMs)
+{
+    depthMs = std::fmax( newDepthMs, 0.f);
     depthRamp.setTarget(depthMs * static_cast<float>(0.001 * sampleRate), true);
+}
+
+void LFO::setOffset(float newOffsetMs)
+{
+    offsetMs = std::fmax(newOffsetMs, 0.f);
+    offsetRamp.setTarget(newOffsetMs * static_cast<float>(0.001 * sampleRate), true);
 }
 
 }

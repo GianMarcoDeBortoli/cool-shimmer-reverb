@@ -41,7 +41,7 @@ public:
     void process(float* output, const float* input, unsigned int numChannels, const float* modInput);
 
     // Get sample from delay line at requested index
-    float getSample(unsigned int channel, float index);
+    float getSample(unsigned int channel, unsigned int index);
 
     static constexpr unsigned int MaxChannels { 2 };
 
