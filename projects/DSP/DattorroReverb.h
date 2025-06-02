@@ -23,7 +23,6 @@ public:
         LFO::LFOType initLFOType = LFO::Sin,         // LFO wave type
         float initLFOFreqHz = 0.5f,                  // LFO frequency in Hz
         float initLFODepthMs = 2.f,                  // LFO depth in milliseconds
-        float initLFOOffsetMs = 1.f,                 // LFO offset in milliseconds
         float initDecayDiffusionCoeff_1 = 0.70f,     // Decay diffuser 1 left & right coefficient
         float initDampingFilterCoeff = 0.005f,       // Damping filter coefficient
         float initDecayCoeff = 0.50f,                // Damping coefficient
@@ -109,6 +108,9 @@ public:
     static constexpr float tapOutMs_right_5 { 2111.f / sampleRate_Original * 1000.f };
     static constexpr float tapOutMs_right_6 {  335.f / sampleRate_Original * 1000.f };
     static constexpr float tapOutMs_right_7 {  121.f / sampleRate_Original * 1000.f };
+
+    // LFO
+    static constexpr float lfoOffsetMs { 0.1f };
 
 private:
     double sampleRate;

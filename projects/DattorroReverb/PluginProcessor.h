@@ -11,6 +11,7 @@ namespace Param
     namespace ID
     {
         static const juce::String Enabled { "enabled" };
+        static const juce::String Mix { "mix" };
         static const juce::String PreDelay { "predelay" };
         static const juce::String ToneControl { "tone_control" };
         static const juce::String InputDiffCoeff_1 { "input_diffusion_coeff_1" };
@@ -28,6 +29,7 @@ namespace Param
     namespace Name
     {
         static const juce::String Enabled { "Enabled" };
+        static const juce::String Mix { "Mix" };
         static const juce::String PreDelay { "Predelay" };
         static const juce::String ToneControl { "Tone Control" };
         static const juce::String InputDiffCoeff_1 { "Input Diffusion 1" };
@@ -47,14 +49,20 @@ namespace Param
         static const juce::String EnabledOff { "Off" };
         static const juce::String EnabledOn { "On" };
         static constexpr bool EnabledDefault { true };
+
+        static constexpr float MixDefault { 0.25f };
+        static constexpr float MixMin { 0.f };
+        static constexpr float MixMax { 1.f };
+        static constexpr float MixInc { 0.01f };
+        static constexpr float MixSkw { 0.5f };
         
         static constexpr float PreDelayDefault { 20.f };
         static constexpr float PreDelayMin { 0.f };
-        static constexpr float PreDelayMax { 1000.f };
+        static constexpr float PreDelayMax { 100.f };
         static constexpr float PreDelayInc { 1.f };
         static constexpr float PreDelaySkw { 1.f };
 
-        static constexpr float ToneControlDefault { 0.9995f };
+        static constexpr float ToneControlDefault { 0.3f };
         static constexpr float ToneControlMin { 0.f };
         static constexpr float ToneControlMax { 1.f };
         static constexpr float ToneControlInc { 0.01f };
@@ -71,23 +79,17 @@ namespace Param
         static const juce::String LFOTypeTri { "Triangle" };
         static constexpr unsigned int LFOTypeDefault { 0 };
 
-        static constexpr float LFOFreqDefault { 0.5f };
+        static constexpr float LFOFreqDefault { 1.2f };
         static constexpr float LFOFreqMin { 0.f };
-        static constexpr float LFOFreqMax { 10.f };
+        static constexpr float LFOFreqMax { 2.f };
         static constexpr float LFOFreqInc { 0.01f };
         static constexpr float LFOFreqSkw { 1.f };
 
         static constexpr float LFODepthDefault { 16.f / 30000.f * 1000.f }; // Excursion of 16 samples at 30kHz
         static constexpr float LFODepthMin { 0.f };
-        static constexpr float LFODepthMax { 20.f };
+        static constexpr float LFODepthMax { 1.f };
         static constexpr float LFODepthInc { 0.01f };
         static constexpr float LFODepthSkw { 1.f };
-
-        static constexpr float LFOOffsetDefault { 0.1f };
-        static constexpr float LFOOffsetMin { 0.1f };
-        static constexpr float LFOOffsetMax { 20.f };
-        static constexpr float LFOOffsetInc { 0.01f };
-        static constexpr float LFOOffsetSkw { 1.f };
 
         static constexpr float DecayDiffCoeff1Default { 0.70f };
         static constexpr float DecayDiffCoeff1Min { 0.f };
@@ -160,6 +162,9 @@ private:
     //Enable/Disable the effect
     DSP::Ramp<float> enableRamp;
     bool enabled { true };
+    // Mix dry/wet
+    DSP::Ramp<float> mixRamp;
+    float mix { 1.0f };
     // Dattorro Reverb instance
     DSP::DattorroReverb dattorroReverb;
     juce::AudioBuffer<float> revBuffer;
@@ -174,7 +179,6 @@ private:
     DSP::LFO::LFOType lfoType;
     float lfoFreqHz;
     float lfoDepthMs;
-    float lfoOffsetMs;
     // Decay diffusion 1
     float decayDiffusionCoeff_1;
     // Damping

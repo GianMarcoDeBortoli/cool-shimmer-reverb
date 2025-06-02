@@ -8,8 +8,9 @@ namespace DSP
 
 DelayLine::DelayLine(unsigned int maxLengthSamples, unsigned int numChannels)
 {
+    delayBufferSize = std::max(maxLengthSamples, 1u);
     for (unsigned int ch = 0; ch < numChannels; ++ch)
-        delayBuffer.emplace_back(maxLengthSamples, 0.f);
+        delayBuffer.emplace_back(delayBufferSize, 0.f);
 }
 
 DelayLine::~DelayLine()
@@ -22,11 +23,12 @@ void DelayLine::clear()
         std::fill(b.begin(), b.end(), 0.f);
 }
 
-void DelayLine::prepare(unsigned int maxLengthSamples, unsigned int numChannels)
+void DelayLine::prepare(unsigned int newLengthSamples, unsigned int numChannels)
 {
     delayBuffer.clear();
     for (unsigned int ch = 0; ch < numChannels; ++ch)
-        delayBuffer.emplace_back(std::max(maxLengthSamples, 1u), 0.f);
+        delayBuffer.emplace_back(std::max(delayBufferSize, 1u), 0.f);
+    delaySamples = newLengthSamples;
 }
 
 void DelayLine::process(float* const* output, const float* const* input, unsigned int numChannels, unsigned int numSamples)

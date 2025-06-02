@@ -52,6 +52,7 @@ public:
 
 private:
     std::vector<std::vector<float>> delayBuffer;
+    unsigned int delayBufferSize { 0 };
     unsigned int delaySamples { 0 };
     unsigned int writeIndex { 0 };
 };

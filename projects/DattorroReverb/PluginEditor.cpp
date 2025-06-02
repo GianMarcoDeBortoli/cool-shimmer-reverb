@@ -6,7 +6,7 @@ DattorroReverbProcessorEditor::DattorroReverbProcessorEditor(DattorroReverbProce
     enableParameterEditor(
         audioProcessor.getParameterManager(),
         paramHeight,
-        { Param::ID::Enabled }
+        { Param::ID::Enabled, Param::ID::Mix }
     ),
     diffusionParameterEditor(
         audioProcessor.getParameterManager(),
@@ -21,7 +21,7 @@ DattorroReverbProcessorEditor::DattorroReverbProcessorEditor(DattorroReverbProce
     lfoParameterEditor(
         audioProcessor.getParameterManager(),
         paramHeight,
-        { Param::ID::LFOType, Param::ID::LFOFreqHz, Param::ID::LFODepthMs, Param::ID::LFOOffsetMs }
+        { Param::ID::LFOType, Param::ID::LFOFreqHz, Param::ID::LFODepthMs }
     )
 {
     addAndMakeVisible(enableParameterEditor);

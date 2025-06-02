@@ -7,6 +7,7 @@
 static std::vector<mrta::ParameterInfo> parameters
 {
     { Param::ID::Enabled,  Param::Name::Enabled,   Param::Range::EnabledOff,   Param::Range::EnabledOn, Param::Range::EnabledDefault },
+    { Param::ID::Mix,      Param::Name::Mix,       "", Param::Range::MixDefault, Param::Range::MixMin, Param::Range::MixMax, Param::Range::MixInc, Param::Range::MixSkw },
     { Param::ID::PreDelay, Param::Name::PreDelay,  Param::Units::Ms, Param::Range::PreDelayDefault, Param::Range::PreDelayMin, Param::Range::PreDelayMax, Param::Range::PreDelayInc, Param::Range::PreDelaySkw },
     { Param::ID::ToneControl, Param::Name::ToneControl, "", Param::Range::ToneControlDefault, Param::Range::ToneControlMin, Param::Range::ToneControlMax, Param::Range::ToneControlInc, Param::Range::ToneControlSkw },
     { Param::ID::InputDiffCoeff_1, Param::Name::InputDiffCoeff_1, "", Param::Range::InputDiffCoeff1Default, Param::Range::InputDiffCoeffMin, Param::Range::InputDiffCoeffMax, Param::Range::InputDiffCoeffInc, Param::Range::InputDiffCoeffSkw },
@@ -14,7 +15,6 @@ static std::vector<mrta::ParameterInfo> parameters
     {Param::ID::LFOType, Param::Name::LFOType, Param::Range::LFOTypeSin, Param::Range::LFOTypeTri, Param::Range::LFOTypeDefault},
     {Param::ID::LFOFreqHz, Param::Name::LFOFreqHz, Param::Units::Hz, Param::Range::LFOFreqDefault, Param::Range::LFOFreqMin, Param::Range::LFOFreqMax, Param::Range::LFOFreqInc, Param::Range::LFOFreqSkw},
     {Param::ID::LFODepthMs, Param::Name::LFODepthMs, Param::Units::Ms, Param::Range::LFODepthDefault, Param::Range::LFODepthMin, Param::Range::LFODepthMax, Param::Range::LFODepthInc, Param::Range::LFODepthSkw},
-    {Param::ID::LFOOffsetMs, Param::Name::LFOOffsetMs, Param::Units::Ms, Param::Range::LFOOffsetDefault, Param::Range::LFOOffsetMin, Param::Range::LFOOffsetMax, Param::Range::LFOOffsetInc, Param::Range::LFOOffsetSkw},
     {Param::ID::DecayDiffCoeff_1, Param::Name::DecayDiffCoeff_1, "", Param::Range::DecayDiffCoeff1Default, Param::Range::DecayDiffCoeff1Min, Param::Range::DecayDiffCoeff1Max, Param::Range::DecayDiffCoeff1Inc, Param::Range::DecayDiffCoeff1Skw},
     {Param::ID::DampFilterCoeff, Param::Name::DampFilterCoeff, "", Param::Range::DampFilterCoeffDefault, Param::Range::DampFilterCoeffMin, Param::Range::DampFilterCoeffMax, Param::Range::DampFilterCoeffInc, Param::Range::DampFilterCoeffSkw},
     {Param::ID::DecayCoeff, Param::Name::DecayCoeff, "", Param::Range::DecayCoeffDefault, Param::Range::DecayCoeffMin, Param::Range::DecayCoeffMax, Param::Range::DecayCoeffInc, Param::Range::DecayCoeffSkw},
@@ -33,7 +33,6 @@ DattorroReverbProcessor::DattorroReverbProcessor():
         static_cast<DSP::LFO::LFOType>(Param::Range::LFOTypeDefault),
         Param::Range::LFOFreqDefault,
         Param::Range::LFODepthDefault,
-        Param::Range::LFODepthDefault,
         Param::Range::DecayDiffCoeff1Default,
         Param::Range::DampFilterCoeffDefault,
         Param::Range::DecayCoeffDefault,
@@ -41,6 +40,8 @@ DattorroReverbProcessor::DattorroReverbProcessor():
     ),
     enabled { Param::Range::EnabledDefault },
     enableRamp(0.05f),
+    mix { Param::Range::MixDefault },
+    mixRamp(0.001f),
     preDelayMs { Param::Range::PreDelayDefault },
     toneControl { Param::Range::ToneControlDefault },
     inputDiffusionCoeff_1 { Param::Range::InputDiffCoeff1Default },
@@ -48,7 +49,6 @@ DattorroReverbProcessor::DattorroReverbProcessor():
     lfoType { Param::Range::LFOTypeDefault },
     lfoFreqHz { Param::Range::LFOFreqDefault },
     lfoDepthMs { Param::Range::LFODepthDefault },
-    lfoOffsetMs { Param::Range::LFODepthDefault },
     decayDiffusionCoeff_1 { Param::Range::DecayDiffCoeff1Default },
     dampingFilterCoeff { Param::Range::DampFilterCoeffDefault },
     decayCoeff { Param::Range::DecayCoeffDefault },
@@ -59,6 +59,12 @@ DattorroReverbProcessor::DattorroReverbProcessor():
     {
         enabled = newValue > 0.5f;
         enableRamp.setTarget(enabled ? 1.f : 0.f, force);
+    });
+    parameterManager.registerParameterCallback(Param::ID::Mix,
+    [this](float newMix, bool /*force*/)
+    {
+        mix = std::clamp(newMix, Param::Range::MixMin, Param::Range::MixMax);
+        mixRamp.setTarget(mix, true);
     });
     parameterManager.registerParameterCallback(Param::ID::PreDelay, 
     [this](float newPreDelayMs, bool /*force*/)
@@ -104,12 +110,6 @@ DattorroReverbProcessor::DattorroReverbProcessor():
         lfoDepthMs = std::clamp(newLFODepthMs, Param::Range::LFODepthMin, Param::Range::LFODepthMax);
         dattorroReverb.setLFOdepthMs(lfoDepthMs);
     });
-    parameterManager.registerParameterCallback(Param::ID::LFOOffsetMs,
-    [this](float newLFOOffsetMs, bool /*force*/)
-    {
-        lfoOffsetMs = std::clamp(newLFOOffsetMs, Param::Range::LFOOffsetMin, Param::Range::LFOOffsetMax);
-        dattorroReverb.setLFOoffsetMs(lfoOffsetMs);
-    });
     parameterManager.registerParameterCallback(Param::ID::DecayDiffCoeff_1,
     [this](float newDecayDiffCoeff, bool /*force*/)
     {
@@ -150,6 +150,7 @@ void DattorroReverbProcessor::prepareToPlay(double newSampleRate, int samplesPer
     revBuffer.setSize(static_cast<int>(numChannels), samplesPerBlock);
 
     enableRamp.prepare(sampleRate, true, enabled ? 1.f : 0.f);
+    mixRamp.prepare(sampleRate, true, mix);
 
     parameterManager.updateParameters(true);
 }
@@ -174,7 +175,8 @@ void DattorroReverbProcessor::processBlock(juce::AudioBuffer<float>& buffer, juc
 
     dattorroReverb.process(revBuffer.getArrayOfWritePointers(), buffer.getArrayOfReadPointers(), numChannels, numSamples);
     enableRamp.applyGain(revBuffer.getArrayOfWritePointers(), numChannels, numSamples);
-    enableRamp.applyInverseGain(buffer.getArrayOfWritePointers(), numChannels, numSamples);
+    mixRamp.applyGain(revBuffer.getArrayOfWritePointers(), numChannels, numSamples);
+    // enableRamp.applyInverseGain(buffer.getArrayOfWritePointers(), numChannels, numSamples);
     for (unsigned int ch = 0; ch < numChannels; ++ch)
     {
         buffer.addFrom(ch, 0, revBuffer, ch, 0, numSamples);
