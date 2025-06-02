@@ -387,7 +387,8 @@ add_plugin(delay_line
         ${dsp_source}
         ${gui_source})
 
-# delay line project
+
+# Dattorro reverberator project
 set(dattorro_reverb_source ${CMAKE_CURRENT_SOURCE_DIR}/projects/DattorroReverb)
 
 add_plugin(dattorro_reverb
@@ -409,3 +410,22 @@ add_plugin(dattorro_reverb
         ${dattorro_reverb_source}
         ${dsp_source}
         ${gui_source})
+
+# Pitch shifter project
+set(pitchshifter ${CMAKE_CURRENT_SOURCE_DIR}/projects/PitchShifter)
+
+add_plugin(pitchshifter
+    VERSION 0.1.0
+    PLUGIN_NAME "Pitch Shifter"
+    PROD_NAME pshift
+    PROD_CODE psft
+    SYNTH FALSE
+    SOURCES
+        ${pitchshifter}/PluginEditor.cpp
+        ${pitchshifter}/PluginProcessor.cpp
+        ${dsp_source}/GranularPitchShifter.cpp
+    INCLUDE_DIRS
+        ${gui_source}
+        ${dsp_source}
+        ${pitch_shifter_source})
+
