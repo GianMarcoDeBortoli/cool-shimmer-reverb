@@ -387,6 +387,31 @@ add_plugin(delay_line
         ${dsp_source}
         ${gui_source})
 
+
+# Dattorro reverberator project
+set(dattorro_reverb_source ${CMAKE_CURRENT_SOURCE_DIR}/projects/DattorroReverb)
+
+add_plugin(dattorro_reverb
+    VERSION 0.1.0
+    PLUGIN_NAME "Dattorro Reverb"
+    PROD_NAME DattorroReverb
+    PROD_CODE DRev
+    SYNTH FALSE
+    SOURCES
+        ${dattorro_reverb_source}/PluginEditor.cpp
+        ${dattorro_reverb_source}/PluginProcessor.cpp
+        ${dsp_source}/DattorroReverb.cpp
+        ${dsp_source}/DattorroDelayLine.cpp
+        ${dsp_source}/LeakyIntegrator.cpp
+        ${dsp_source}/DattorroAllPass.cpp
+        ${dsp_source}/LFO.cpp
+        ${gui_source}/MrtaLAF.cpp
+    INCLUDE_DIRS
+        ${dattorro_reverb_source}
+        ${dsp_source}
+        ${gui_source})
+
+# Pitch shifter project
 set(pitchshifter ${CMAKE_CURRENT_SOURCE_DIR}/projects/PitchShifter)
 
 add_plugin(pitchshifter
@@ -403,3 +428,4 @@ add_plugin(pitchshifter
         ${gui_source}
         ${dsp_source}
         ${pitch_shifter_source})
+

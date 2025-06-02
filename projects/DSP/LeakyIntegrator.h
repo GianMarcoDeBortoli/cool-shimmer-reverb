@@ -9,7 +9,7 @@ class LeakyIntegrator
 {
 public:
     // Constructor
-    LeakyIntegrator(const float initCoeff);
+    LeakyIntegrator(float initCoeff);
     // Destructor
     ~LeakyIntegrator();
 
@@ -28,7 +28,7 @@ public:
     void clear();
 
     // Set new coefficient
-    void setCoeff(const float newCoeff);
+    void setCoeff(float newCoeff);
 
     // Process block of audio 
     void process(float* const* output, const float* const* input, unsigned int numChannels, unsigned int numSamples);
@@ -36,8 +36,6 @@ public:
     // Process single sample of audio
     void process(float* output, const float* input, unsigned int numChannels);
     // ======================
-
-    static constexpr float MaxChannels { 2 };
 
 private:
     DSP::Ramp<float> coeffRamp;
