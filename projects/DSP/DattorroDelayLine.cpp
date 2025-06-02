@@ -98,7 +98,7 @@ void DelayLine::process(float* audioOutput, const float* audioInput, const float
         delayBuffer[ch][workingWriteIndex] = x;
 
         // Interpolate output
-        audioOutput[ch] = read0 * mFrac1 + read1 * mFrac0;
+        audioOutput[ch] = read0 * mFrac0 + read1 * mFrac1;
 
     }
 
