@@ -1,9 +1,9 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "DelayLine.h"
+#include "DattorroDelayLine.h"
 #include "LeakyIntegrator.h"
-#include "AllPass.h"
+#include "DattorroAllPass.h"
 #include "LFO.h"
 
 namespace DSP
