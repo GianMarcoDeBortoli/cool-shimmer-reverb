@@ -75,38 +75,40 @@ public:
     // Constants for the Dattorro Reverb algorithm
     // Number of channels
     static constexpr unsigned int MaxChannels { 2 };
+    // Sample rate in Hz used in the original algorithm
+    static constexpr float sampleRate_Original { 30000.f };
     // Input diffusers delay line lengths in milliseconds
-    static constexpr float inputDiffDelayMs_1 { 142.f / 30000.f * 1000.f };
-    static constexpr float inputDiffDelayMs_2 { 107.f / 30000.f * 1000.f };
-    static constexpr float inputDiffDelayMs_3 { 379.f / 30000.f * 1000.f };
-    static constexpr float inputDiffDelayMs_4 { 277.f / 30000.f * 1000.f };
+    static constexpr float inputDiffDelayMs_1 { 142.f / sampleRate_Original * 1000.f };
+    static constexpr float inputDiffDelayMs_2 { 107.f / sampleRate_Original * 1000.f };
+    static constexpr float inputDiffDelayMs_3 { 379.f / sampleRate_Original * 1000.f };
+    static constexpr float inputDiffDelayMs_4 { 277.f / sampleRate_Original * 1000.f };
     // Decay diffusers delay line lengths in milliseconds
-    static constexpr float decayDiffDelayMs_left_1 { 672.f / 30000.f * 1000.f };
-    static constexpr float decayDiffDelayMs_right_1 { 908.f / 30000.f * 1000.f };
-    static constexpr float decayDiffDelayMs_left_2 { 1800.f / 30000.f * 1000.f };
-    static constexpr float decayDiffDelayMs_right_2 { 2656.f / 30000.f * 1000.f };
+    static constexpr float decayDiffDelayMs_left_1  {  672.f / sampleRate_Original * 1000.f };
+    static constexpr float decayDiffDelayMs_right_1 {  908.f / sampleRate_Original * 1000.f };
+    static constexpr float decayDiffDelayMs_left_2  { 1800.f / sampleRate_Original * 1000.f };
+    static constexpr float decayDiffDelayMs_right_2 { 2656.f / sampleRate_Original * 1000.f };
     // Delay lines delay lengths in milliseconds
-    static constexpr float delayMs_left_1 { 4453.f / 30000.f * 1000.f };
-    static constexpr float delayMs_left_2 { 3720.f / 30000.f * 1000.f };
-    static constexpr float delayMs_right_1 { 4217.f / 30000.f * 1000.f };
-    static constexpr float delayMs_right_2 { 3163.f / 30000.f * 1000.f };
+    static constexpr float delayMs_left_1  { 4453.f / sampleRate_Original * 1000.f };
+    static constexpr float delayMs_left_2  { 3720.f / sampleRate_Original * 1000.f };
+    static constexpr float delayMs_right_1 { 4217.f / sampleRate_Original * 1000.f };
+    static constexpr float delayMs_right_2 { 3163.f / sampleRate_Original * 1000.f };
     // Indices from which we tap the output
     // LEFT CHANNEL
-    static constexpr float tapOutMs_left_1 { 266.f / 30000.f * 1000.f };
-    static constexpr float tapOutMs_left_2 { 2974.f / 30000.f * 1000.f };
-    static constexpr float tapOutMs_left_3 { 1913.f / 30000.f * 1000.f };
-    static constexpr float tapOutMs_left_4 { 1996.f / 30000.f * 1000.f };
-    static constexpr float tapOutMs_left_5 { 1990.f / 30000.f * 1000.f };
-    static constexpr float tapOutMs_left_6 { 187.f / 30000.f * 1000.f };
-    static constexpr float tapOutMs_left_7 { 1066.f / 30000.f * 1000.f };
+    static constexpr float tapOutMs_left_1 {  266.f / sampleRate_Original * 1000.f };
+    static constexpr float tapOutMs_left_2 { 2974.f / sampleRate_Original * 1000.f };
+    static constexpr float tapOutMs_left_3 { 1913.f / sampleRate_Original * 1000.f };
+    static constexpr float tapOutMs_left_4 { 1996.f / sampleRate_Original * 1000.f };
+    static constexpr float tapOutMs_left_5 { 1990.f / sampleRate_Original * 1000.f };
+    static constexpr float tapOutMs_left_6 {  187.f / sampleRate_Original * 1000.f };
+    static constexpr float tapOutMs_left_7 { 1066.f / sampleRate_Original * 1000.f };
     // RIGHT CHANNEL
-    static constexpr float tapOutMs_right_1 { 353.f / 30000.f * 1000.f };
-    static constexpr float tapOutMs_right_2 { 3627.f / 30000.f * 1000.f };
-    static constexpr float tapOutMs_right_3 { 1228.f / 30000.f * 1000.f };
-    static constexpr float tapOutMs_right_4 { 2673.f / 30000.f * 1000.f };
-    static constexpr float tapOutMs_right_5 { 2111.f / 30000.f * 1000.f };
-    static constexpr float tapOutMs_right_6 { 335.f / 30000.f * 1000.f };
-    static constexpr float tapOutMs_right_7 { 121.f / 30000.f * 1000.f };
+    static constexpr float tapOutMs_right_1 {  353.f / sampleRate_Original * 1000.f };
+    static constexpr float tapOutMs_right_2 { 3627.f / sampleRate_Original * 1000.f };
+    static constexpr float tapOutMs_right_3 { 1228.f / sampleRate_Original * 1000.f };
+    static constexpr float tapOutMs_right_4 { 2673.f / sampleRate_Original * 1000.f };
+    static constexpr float tapOutMs_right_5 { 2111.f / sampleRate_Original * 1000.f };
+    static constexpr float tapOutMs_right_6 {  335.f / sampleRate_Original * 1000.f };
+    static constexpr float tapOutMs_right_7 {  121.f / sampleRate_Original * 1000.f };
 
 private:
     double sampleRate;

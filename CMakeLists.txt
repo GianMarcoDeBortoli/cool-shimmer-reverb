@@ -400,9 +400,9 @@ add_plugin(dattorro_reverb
         ${dattorro_reverb_source}/PluginEditor.cpp
         ${dattorro_reverb_source}/PluginProcessor.cpp
         ${dsp_source}/DattorroReverb.cpp
-        ${dsp_source}/DelayLine.cpp
+        ${dsp_source}/DattorroDelayLine.cpp
         ${dsp_source}/LeakyIntegrator.cpp
-        ${dsp_source}/AllPass.cpp
+        ${dsp_source}/DattorroAllPass.cpp
         ${dsp_source}/LFO.cpp
         ${gui_source}/MrtaLAF.cpp
     INCLUDE_DIRS
