@@ -79,7 +79,7 @@ namespace Param
         static const juce::String LFOTypeTri { "Triangle" };
         static constexpr unsigned int LFOTypeDefault { 0 };
 
-        static constexpr float LFOFreqDefault { 1.2f };
+        static constexpr float LFOFreqDefault { 0.7f };
         static constexpr float LFOFreqMin { 0.f };
         static constexpr float LFOFreqMax { 2.f };
         static constexpr float LFOFreqInc { 0.01f };

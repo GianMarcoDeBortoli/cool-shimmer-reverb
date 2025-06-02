@@ -60,7 +60,6 @@ public:
     void setLFOtype(LFO::LFOType newModType);
     void setLFOfreqHz(float newModRateHz);
     void setLFOdepthMs(float newModDepthMs);
-    void setLFOoffsetMs(float newModOffsetMs);
 
     void setDecayDiffusionCoeff_1(float newDiffCoeff);
 

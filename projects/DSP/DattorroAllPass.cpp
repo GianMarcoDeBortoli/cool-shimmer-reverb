@@ -3,24 +3,36 @@
 namespace DSP
 {
 
-AllPass::AllPass(float initDelayMs, float initCoeff, unsigned int initNumChannels) :
-    delayLine(static_cast<unsigned int>(std::round(initDelayMs * static_cast<float>(0.001 * sampleRate))),
-               static_cast<unsigned int>(std::min(std::max(initNumChannels, 1u), MaxChannels))),
-    delayTimeMs { initDelayMs },
+AllPass::AllPass(float initDelaySamples, float initCoeff, unsigned int initNumChannels) :
+    delayLine(initDelaySamples, static_cast<unsigned int>(std::min(std::max(initNumChannels, 1u), MaxChannels))),
+    delayTimeSamples { initDelaySamples },
     coeff { initCoeff }
 {
-    setDelayTime(delayTimeMs);
+    setDelayTime(delayTimeSamples);
 }
 
 AllPass::~AllPass()
 {
 }
 
-void AllPass::prepare(double newSampleRate, unsigned int newNumChannels)
+void AllPass::setCoeff(const float newCoeff)
 {
-    sampleRate = newSampleRate;
-    delayLine.prepare(static_cast<unsigned int>(std::round(delayTimeMs * static_cast<float>(0.001 * sampleRate))), newNumChannels);
-    clear();
+    coeff = std::clamp(newCoeff, -0.98f, 0.98f);
+}
+
+void AllPass::setDelayTime(float newDelaySamples)
+{
+    delayLine.setDelaySamples(newDelaySamples);
+}
+
+float AllPass::getSample(unsigned int channel, unsigned int index)
+{
+    return delayLine.getSample(channel, index);
+}
+
+void AllPass::prepare(unsigned int newNumChannels)
+{
+    delayLine.prepare(delayTimeSamples, newNumChannels);
 }
 
 
@@ -30,42 +42,6 @@ void AllPass::clear()
 
     feedbackState[0] = 0.f;
     feedbackState[1] = 0.f;
-}
-
-void AllPass::setCoeff(const float newCoeff)
-{
-    coeff = std::clamp(newCoeff, -0.95f, 0.95f);
-}
-
-void AllPass::setDelayTime(float newDelayMs)
-{
-    delayLine.setDelaySamples(static_cast<unsigned int>(std::round(newDelayMs * static_cast<float>(0.001 * sampleRate))));
-}
-
-void AllPass::process(float* const* output, const float* const* input, unsigned int numChannels, unsigned int numSamples)
-{    
-
-    for (unsigned int n = 0; n < numSamples; ++n)
-    {
-        // Compute the input to the delay line 
-        //
-        float delayIn[2] { 0.f, 0.f };
-        for (unsigned int ch = 0; ch < numChannels; ++ch)
-        {
-            delayIn[ch] = -coeff * feedbackState[ch] + input[ch][n];
-        }
-
-        for (unsigned int ch = 0; ch < numChannels; ++ch)
-        {
-            // Compute the output
-            output[ch][n] = coeff * delayIn[ch] + feedbackState[ch];
-        }
-
-        // Process delay
-        delayLine.process(feedbackState, delayIn, numChannels);
-        
-    }
-
 }
 
 void AllPass::process(float* output, const float* input, unsigned int numChannels)
@@ -102,11 +78,6 @@ void AllPass::process(float*output, const float* input, unsigned int numChannels
 
     // Feed the delay line
     delayLine.process(feedbackState, delayIn, modInput, numChannels);
-}
-
-float AllPass::getSample(unsigned int channel, unsigned int index)
-{
-    return delayLine.getSample(channel, index);
 }
 
 }
