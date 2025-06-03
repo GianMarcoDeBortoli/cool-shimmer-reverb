@@ -14,16 +14,8 @@ namespace Param
         static const juce::String Mix { "mix" };
         static const juce::String PreDelay { "predelay" };
         static const juce::String ToneControl { "tone_control" };
-        static const juce::String InputDiffCoeff_1 { "input_diffusion_coeff_1" };
-        static const juce::String InputDiffCoeff_2 { "input_diffusion_coeff_2" };
-        static const juce::String LFOType { "lfo_type" };
-        static const juce::String LFOFreqHz { "lfo_freq_hz" };
-        static const juce::String LFODepthMs { "lfo_depth_ms" };
-        static const juce::String LFOOffsetMs { "lfo_offset_ms" };
-        static const juce::String DecayDiffCoeff_1 { "decay_diffusion_coeff_1" };
         static const juce::String DampFilterCoeff { "damping_filter_coeff" };
         static const juce::String DecayCoeff { "decay_coeff" };
-        static const juce::String DecayDiffCoeff_2 { "decay_diffusion_coeff_2" };
     }
 
     namespace Name
@@ -32,16 +24,8 @@ namespace Param
         static const juce::String Mix { "Mix" };
         static const juce::String PreDelay { "Predelay" };
         static const juce::String ToneControl { "Tone Control" };
-        static const juce::String InputDiffCoeff_1 { "Input Diffusion 1" };
-        static const juce::String InputDiffCoeff_2 { "Input Diffusion 2" };
-        static const juce::String LFOType { "LFO Type" };
-        static const juce::String LFOFreqHz { "LFO Frequency (Hz)" };
-        static const juce::String LFODepthMs { "LFO Depth (ms)" };
-        static const juce::String LFOOffsetMs { "LFO Offset (ms)" };
-        static const juce::String DecayDiffCoeff_1 { "Decay Diffusion 1" };
         static const juce::String DampFilterCoeff { "Damping Filter Coefficient" };
         static const juce::String DecayCoeff { "Decay Coefficient" };
-        static const juce::String DecayDiffCoeff_2 { "Decay Diffusion 2" };
     }
 
     namespace Range
@@ -68,35 +52,6 @@ namespace Param
         static constexpr float ToneControlInc { 0.01f };
         static constexpr float ToneControlSkw { 0.5f };
 
-        static constexpr float InputDiffCoeff1Default { 0.750f };
-        static constexpr float InputDiffCoeff2Default { 0.625f };
-        static constexpr float InputDiffCoeffMin { 0.f };
-        static constexpr float InputDiffCoeffMax { 1.f };
-        static constexpr float InputDiffCoeffInc { 0.01f };
-        static constexpr float InputDiffCoeffSkw { 0.5f };
-
-        static const juce::String LFOTypeSin { "Sine" };
-        static const juce::String LFOTypeTri { "Triangle" };
-        static constexpr unsigned int LFOTypeDefault { 0 };
-
-        static constexpr float LFOFreqDefault { 0.7f };
-        static constexpr float LFOFreqMin { 0.f };
-        static constexpr float LFOFreqMax { 2.f };
-        static constexpr float LFOFreqInc { 0.01f };
-        static constexpr float LFOFreqSkw { 1.f };
-
-        static constexpr float LFODepthDefault { 16.f / 30000.f * 1000.f }; // Excursion of 16 samples at 30kHz
-        static constexpr float LFODepthMin { 0.f };
-        static constexpr float LFODepthMax { 1.f };
-        static constexpr float LFODepthInc { 0.01f };
-        static constexpr float LFODepthSkw { 1.f };
-
-        static constexpr float DecayDiffCoeff1Default { 0.70f };
-        static constexpr float DecayDiffCoeff1Min { 0.f };
-        static constexpr float DecayDiffCoeff1Max { 1.f };
-        static constexpr float DecayDiffCoeff1Inc { 0.01f };
-        static constexpr float DecayDiffCoeff1Skw { 0.5f };
-
         static constexpr float DampFilterCoeffDefault { 0.005f };
         static constexpr float DampFilterCoeffMin { 0.f };
         static constexpr float DampFilterCoeffMax { 1.f };
@@ -108,12 +63,6 @@ namespace Param
         static constexpr float DecayCoeffMax { 1.f };
         static constexpr float DecayCoeffInc { 0.01f };
         static constexpr float DecayCoeffSkw { 0.5f };
-
-        static constexpr float DecayDiffCoeff2Default { 0.50f };
-        static constexpr float DecayDiffCoeff2Min { 0.f };
-        static constexpr float DecayDiffCoeff2Max { 1.f };
-        static constexpr float DecayDiffCoeff2Inc { 0.01f };
-        static constexpr float DecayDiffCoeff2Skw { 0.5f };
     }
 
     namespace Units
@@ -172,21 +121,10 @@ private:
     float preDelayMs;
     // Tone control
     float toneControl;
-    // Input diffusion
-    float inputDiffusionCoeff_1;
-    float inputDiffusionCoeff_2;
-    // LFO modulation
-    DSP::LFO::LFOType lfoType;
-    float lfoFreqHz;
-    float lfoDepthMs;
-    // Decay diffusion 1
-    float decayDiffusionCoeff_1;
     // Damping
     float dampingFilterCoeff;
     // Decay
     float decayCoeff;
-    // Decay diffusion 2
-    float decayDiffusionCoeff_2;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DattorroReverbProcessor)
 };

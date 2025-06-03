@@ -8,37 +8,31 @@ DattorroReverb::DattorroReverb(
     unsigned int initNumChannels,
     unsigned int initPreDelaySamples,
     float initToneControlCoeff,
-    float initInputDiffusionCoeff_1_2,
-    float initInputDiffusionCoeff_3_4,
-    LFO::LFOType initLFOType,
-    float initLFOFreqHz,
-    float initLFODepthMs,
-    float initDecayDiffusionCoeff_1,
     float initDampingFilterCoeff,
-    float initDampingCoeff,
-    float initDecayDiffusionCoeff_2
+    float initDampingCoeff
 ) :
     sampleRate { initSampleRate },
     preDelay(initPreDelaySamples, 1u),
     toneControl(initToneControlCoeff),
-    inputDiffuser_1(static_cast<unsigned int>(inputDiffDelayMs_1 * static_cast<float>(0.001 * sampleRate)), initInputDiffusionCoeff_1_2, 1u),
-    inputDiffuser_2(static_cast<unsigned int>(inputDiffDelayMs_2 * static_cast<float>(0.001 * sampleRate)), initInputDiffusionCoeff_1_2, 1u),
-    inputDiffuser_3(static_cast<unsigned int>(inputDiffDelayMs_3 * static_cast<float>(0.001 * sampleRate)), initInputDiffusionCoeff_3_4, 1u),
-    inputDiffuser_4(static_cast<unsigned int>(inputDiffDelayMs_4 * static_cast<float>(0.001 * sampleRate)), initInputDiffusionCoeff_3_4, 1u),
-    lfo(initLFOType, initLFOFreqHz, initLFODepthMs, 0.f),
-    decayDiffuser_left_1(static_cast<unsigned int>(decayDiffDelayMs_left_1 * static_cast<float>(0.001 * sampleRate)), initDecayDiffusionCoeff_1, 1u),
-    decayDiffuser_right_1(static_cast<unsigned int>(decayDiffDelayMs_right_1 * static_cast<float>(0.001 * sampleRate)), initDecayDiffusionCoeff_1, 1u),
+    inputDiffuser_1(static_cast<unsigned int>(inputDiffDelayMs_1 * static_cast<float>(0.001 * sampleRate)), inputDiffCoeff_1_2, 1u),
+    inputDiffuser_2(static_cast<unsigned int>(inputDiffDelayMs_2 * static_cast<float>(0.001 * sampleRate)), inputDiffCoeff_1_2, 1u),
+    inputDiffuser_3(static_cast<unsigned int>(inputDiffDelayMs_3 * static_cast<float>(0.001 * sampleRate)), inputDiffCoeff_3_4, 1u),
+    inputDiffuser_4(static_cast<unsigned int>(inputDiffDelayMs_4 * static_cast<float>(0.001 * sampleRate)), inputDiffCoeff_3_4, 1u),
+    lfo(lfoType, lfoFreqHz, lfoDepthMs, 0.f),
+    decayDiffuser_left_1(static_cast<unsigned int>(decayDiffDelayMs_left_1 * static_cast<float>(0.001 * sampleRate)), decayDiffCoeff_1, 1u),
+    decayDiffuser_right_1(static_cast<unsigned int>(decayDiffDelayMs_right_1 * static_cast<float>(0.001 * sampleRate)), decayDiffCoeff_1, 1u),
     delay_left_1(static_cast<unsigned int>(delayMs_left_1 * static_cast<float>(0.001 * sampleRate)), 1u),
     delay_right_1(static_cast<unsigned int>(delayMs_right_1 * static_cast<float>(0.001 * sampleRate)), 1u),
     dampingFilter(initDampingFilterCoeff),
     decayCoeff { initDampingCoeff },
-    decayDiffuser_left_2(static_cast<unsigned int>(decayDiffDelayMs_left_2 * static_cast<float>(0.001 * sampleRate)), initDecayDiffusionCoeff_2, 1u),
-    decayDiffuser_right_2(static_cast<unsigned int>(decayDiffDelayMs_right_2 * static_cast<float>(0.001 * sampleRate)), initDecayDiffusionCoeff_2, 1u),
+    decayDiffuser_left_2(static_cast<unsigned int>(decayDiffDelayMs_left_2 * static_cast<float>(0.001 * sampleRate)), decayDiffCoeff_2, 1u),
+    decayDiffuser_right_2(static_cast<unsigned int>(decayDiffDelayMs_right_2 * static_cast<float>(0.001 * sampleRate)), decayDiffCoeff_2, 1u),
     delay_left_2(static_cast<unsigned int>(delayMs_left_2 * static_cast<float>(0.001 * sampleRate)), 1u),
     delay_right_2(static_cast<unsigned int>(delayMs_right_2 * static_cast<float>(0.001 * sampleRate)), 1u)
 {
     decayDiffuser_left_1.setDelayTime(decayDiffDelayMs_left_1);
     decayDiffuser_right_1.setDelayTime(decayDiffDelayMs_right_1);
+    decayCoeffRamp.prepare(sampleRate, true, decayCoeff);
 }
 
 DattorroReverb::~DattorroReverb()
@@ -69,6 +63,8 @@ void DattorroReverb::prepare(double newSampleRate, unsigned int newNumChannels, 
     delay_right_1.prepare(static_cast<unsigned int>(delayMs_right_1 * static_cast<float>(0.001 * sampleRate)), 1u);
     // Prepare damping filter
     dampingFilter.prepare(sampleRate);
+    // Prepare decay coefficient ramp
+    decayCoeffRamp.prepare(sampleRate, true, decayCoeff);
     // Prepare decay diffusers 2
     decayDiffuser_left_2.prepare(1u);
     decayDiffuser_right_2.prepare(1u);
@@ -166,8 +162,10 @@ void DattorroReverb::process(float* const* output, const float* const* input, un
         dampingFilter.process(&right, &right, 1u);
 
         // Decay processing 1
-        left *= decayCoeff;
-        right *= decayCoeff;
+        // left *= decayCoeff;
+        decayCoeffRamp.applyGain(&left, 1u);
+        // right *= decayCoeff;
+        decayCoeffRamp.applyGain(&right, 1u);
 
         // Decay Diffusion 2 processing
         decayDiffuser_left_2.process(&left, &left, 1u);
@@ -186,8 +184,10 @@ void DattorroReverb::process(float* const* output, const float* const* input, un
         out_right += 0.6 * delay_left_2.getSample(0, static_cast<unsigned int>(tapOutMs_right_4 * static_cast<float>(0.001 * sampleRate)));
 
         // Decay processing 2
-        left *= decayCoeff;
-        right *= decayCoeff;
+        // left *= decayCoeff;
+        decayCoeffRamp.applyGain(&left, 1u);
+        // right *= decayCoeff;
+        decayCoeffRamp.applyGain(&right, 1u);
 
         // Fifth, sixth, and seventh tap out
         out_left -= 0.6 * delay_left_1.getSample(0, static_cast<unsigned int>(tapOutMs_left_5 * static_cast<float>(0.001 * sampleRate)));
@@ -217,39 +217,6 @@ void DattorroReverb::setToneControl(float newCoeff)
     toneControl.setCoeff(newCoeff);
 }
 
-void DattorroReverb::setInputDiffusionCoeff_1(float newDiffCoeff)
-{
-    inputDiffuser_1.setCoeff(newDiffCoeff);
-    inputDiffuser_2.setCoeff(newDiffCoeff);
-}
-
-void DattorroReverb::setInputDiffusionCoeff_2(float newDiffCoeff)
-{
-    inputDiffuser_3.setCoeff(newDiffCoeff);
-    inputDiffuser_4.setCoeff(newDiffCoeff);
-}
-
-void DattorroReverb::setLFOtype(LFO::LFOType newModType)
-{
-    lfo.setType(newModType);
-}
-
-void DattorroReverb::setLFOfreqHz(float newModRateHz)
-{
-    lfo.setFrequency(newModRateHz);
-}
-
-void DattorroReverb::setLFOdepthMs(float newModDepthMs)
-{
-    lfo.setDepth(newModDepthMs);
-}
-
-void DattorroReverb::setDecayDiffusionCoeff_1(float newDiffCoeff)
-{
-    decayDiffuser_left_1.setCoeff(newDiffCoeff);
-    decayDiffuser_right_1.setCoeff(newDiffCoeff);
-}
-
 void DattorroReverb::setDampingFilterCoeff(float newCoeff)
 {
     dampingFilter.setCoeff(newCoeff);
@@ -258,12 +225,7 @@ void DattorroReverb::setDampingFilterCoeff(float newCoeff)
 void DattorroReverb::setDecayCoeff(float newCoeff)
 {
     decayCoeff = std::clamp(newCoeff, 0.f, 1.f);
-}
-
-void DattorroReverb::setDecayDiffusionCoeff_2(float newDiffCoeff)
-{
-    decayDiffuser_left_2.setCoeff(newDiffCoeff);
-    decayDiffuser_right_2.setCoeff(newDiffCoeff);
+    decayCoeffRamp.setTarget(decayCoeff);
 }
 
 }

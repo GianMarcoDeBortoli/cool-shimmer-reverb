@@ -405,6 +405,7 @@ add_plugin(dattorro_reverb
         ${dsp_source}/LeakyIntegrator.cpp
         ${dsp_source}/DattorroAllPass.cpp
         ${dsp_source}/LFO.cpp
+        ${dsp_source}/Ramp.h
         ${gui_source}/MrtaLAF.cpp
     INCLUDE_DIRS
         ${dattorro_reverb_source}

@@ -11,23 +11,17 @@ DattorroReverbProcessorEditor::DattorroReverbProcessorEditor(DattorroReverbProce
     diffusionParameterEditor(
         audioProcessor.getParameterManager(),
         paramHeight,
-        { Param::ID::PreDelay, Param::ID::ToneControl, Param::ID::InputDiffCoeff_1, Param::ID::InputDiffCoeff_2 }
+        { Param::ID::PreDelay, Param::ID::ToneControl }
     ),
     decayParameterEditor(
         audioProcessor.getParameterManager(),
         paramHeight,
-        { Param::ID::DecayDiffCoeff_1, Param::ID::DampFilterCoeff, Param::ID::DecayCoeff, Param::ID::DecayDiffCoeff_2 }
-    ),
-    lfoParameterEditor(
-        audioProcessor.getParameterManager(),
-        paramHeight,
-        { Param::ID::LFOType, Param::ID::LFOFreqHz, Param::ID::LFODepthMs }
+        { Param::ID::DampFilterCoeff, Param::ID::DecayCoeff }
     )
 {
     addAndMakeVisible(enableParameterEditor);
     addAndMakeVisible(diffusionParameterEditor);
     addAndMakeVisible(decayParameterEditor);
-    addAndMakeVisible(lfoParameterEditor);
 
     setSize(totWidth, totHeight);
 }
@@ -47,6 +41,5 @@ void DattorroReverbProcessorEditor::resized()
     auto localBounds { getLocalBounds() };
     enableParameterEditor.setBounds(localBounds.removeFromLeft(enableWidth));
     diffusionParameterEditor.setBounds(localBounds.removeFromLeft(diffusionWidth));
-    decayParameterEditor.setBounds(localBounds.removeFromLeft(decayWidth));
-    lfoParameterEditor.setBounds(localBounds);
+    decayParameterEditor.setBounds(localBounds);
 }

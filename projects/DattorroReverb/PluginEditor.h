@@ -13,21 +13,18 @@ public:
     void paint(juce::Graphics&) override;
     void resized() override;
 
-    static const int totHeight { 400 };
-    static const int totWidth  { 1200 };
+    static const int totHeight { 200 };
+    static const int totWidth  { 900 };
 
     static const int paramHeight { 100 };
     static const int enableWidth { 300 };
     static const int diffusionWidth { 300 };
-    static const int decayWidth { 300 };
-    static const int lfoWidth { 300 };
 
 private:
     DattorroReverbProcessor& audioProcessor;
     mrta::GenericParameterEditor enableParameterEditor;
     mrta::GenericParameterEditor diffusionParameterEditor;
     mrta::GenericParameterEditor decayParameterEditor;
-    mrta::GenericParameterEditor lfoParameterEditor;
 
     GUI::MrtaLAF laf;
 
