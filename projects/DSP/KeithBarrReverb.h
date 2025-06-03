@@ -36,7 +36,7 @@ public:
     void prepare(double newSampleRate, unsigned int newNumChannels);
 
     // Process block of audio without modulation
-    void process(float* const* output, const float* const* input, unsigned int numChannels, unsigned int numSamples);
+    void process(float* const*  output, const float* const* input, unsigned int numChannels, unsigned int numSamples);
 
     // ==================================================
     void setDampingFilterCoeff(float newCoeff);

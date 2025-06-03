@@ -409,3 +409,26 @@ add_plugin(dattorro_reverb
         ${dattorro_reverb_source}
         ${dsp_source}
         ${gui_source})
+
+# keith barr reverb projects
+set(keithbarr_reverb_source ${CMAKE_CURRENT_SOURCE_DIR}/projects/KeithBarrReverb)
+
+add_plugin(keithbarr_reverb
+    VERSION 0.1.0
+    PLUGIN_NAME "Keith Barr Reverb"
+    PROD_NAME KeithBarrReverb
+    PROD_CODE KRev
+    SYNTH FALSE
+    SOURCES
+        ${keithbarr_reverb_source}/PluginEditor.cpp
+        ${keithbarr_reverb_source}/PluginProcessor.cpp
+        ${dsp_source}/DattorroDelayLine.cpp
+        ${dsp_source}/KeithBarrReverb.cpp
+        ${dsp_source}/DelayLine.cpp
+        ${dsp_source}/LeakyIntegrator.cpp
+        ${dsp_source}/AllPass.cpp
+        ${gui_source}/MrtaLAF.cpp
+    INCLUDE_DIRS
+        ${keithbarr_reverb_source}
+        ${dsp_source}
+        ${gui_source})

@@ -6,24 +6,24 @@
 namespace DSP
 {
 
-DelayLine::DelayLine(unsigned int maxLengthSamples, unsigned int numChannels)
+DattorroDelayLine::DattorroDelayLine(unsigned int maxLengthSamples, unsigned int numChannels)
 {
     delayBufferSize = std::max(maxLengthSamples, 1u);
     for (unsigned int ch = 0; ch < numChannels; ++ch)
         delayBuffer.emplace_back(delayBufferSize, 0.f);
 }
 
-DelayLine::~DelayLine()
+DattorroDelayLine::~DattorroDelayLine()
 {
 }
 
-void DelayLine::clear()
+void DattorroDelayLine::clear()
 {
     for (auto& b : delayBuffer)
         std::fill(b.begin(), b.end(), 0.f);
 }
 
-void DelayLine::prepare(unsigned int newLengthSamples, unsigned int numChannels)
+void DattorroDelayLine::prepare(unsigned int newLengthSamples, unsigned int numChannels)
 {
     delayBuffer.clear();
     for (unsigned int ch = 0; ch < numChannels; ++ch)
@@ -31,7 +31,7 @@ void DelayLine::prepare(unsigned int newLengthSamples, unsigned int numChannels)
     delaySamples = newLengthSamples;
 }
 
-void DelayLine::process(float* const* output, const float* const* input, unsigned int numChannels, unsigned int numSamples)
+void DattorroDelayLine::process(float* const* output, const float* const* input, unsigned int numChannels, unsigned int numSamples)
 {
     const unsigned int delayBufferSize { static_cast<unsigned int>(delayBuffer[0].size()) };
 
@@ -55,7 +55,7 @@ void DelayLine::process(float* const* output, const float* const* input, unsigne
     writeIndex += numSamples; writeIndex %= delayBufferSize;
 }
 
-void DelayLine::process(float* output, const float* input, unsigned int numChannels)
+void DattorroDelayLine::process(float* output, const float* input, unsigned int numChannels)
 {
     const unsigned int delayBufferSize{ static_cast<unsigned int>(delayBuffer[0].size()) };
 
@@ -74,7 +74,7 @@ void DelayLine::process(float* output, const float* input, unsigned int numChann
     ++writeIndex; writeIndex %= delayBufferSize;
 }
 
-void DelayLine::process(float* const* audioOutput, const float* const* audioInput, const float* const* modInput, unsigned int numChannels, unsigned int numSamples)
+void DattorroDelayLine::process(float* const* audioOutput, const float* const* audioInput, const float* const* modInput, unsigned int numChannels, unsigned int numSamples)
 {
     const unsigned int delayBufferSize{ static_cast<unsigned int>(delayBuffer[0].size()) };
 
@@ -120,7 +120,7 @@ void DelayLine::process(float* const* audioOutput, const float* const* audioInpu
     writeIndex += numSamples; writeIndex %= delayBufferSize;
 }
 
-void DelayLine::process(float* audioOutput, const float* audioInput, const float* modInput, unsigned int numChannels)
+void DattorroDelayLine::process(float* audioOutput, const float* audioInput, const float* modInput, unsigned int numChannels)
 {
     const unsigned int delayBufferSize{ static_cast<unsigned int>(delayBuffer[0].size()) };
 
@@ -159,12 +159,12 @@ void DelayLine::process(float* audioOutput, const float* audioInput, const float
     ++writeIndex; writeIndex %= delayBufferSize;
 }
 
-void DelayLine::setDelaySamples(unsigned int newDelaySamples)
+void DattorroDelayLine::setDelaySamples(unsigned int newDelaySamples)
 {
     delaySamples = std::max(std::min(newDelaySamples, static_cast<unsigned int>(delayBuffer[0].size() - 1u)), 1u);
 }
 
-float DelayLine::getSample(unsigned int channel, unsigned int index) const
+float DattorroDelayLine::getSample(unsigned int channel, unsigned int index) const
 {   
     const unsigned int delayBufferSize{ static_cast<unsigned int>(delayBuffer[0].size()) };
 

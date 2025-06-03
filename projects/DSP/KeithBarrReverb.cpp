@@ -122,10 +122,10 @@ void KeithBarrReverb::process(float* const* output, const float* const* input, u
         // ---------- RING ----------
 
         // Update inputs of the ring all pass filters
-        float input_1 = mono + feedbackState_1;
-        float input_2 = mono + feedbackState_2;
-        float input_3 = mono + feedbackState_3;
-        float input_4 = mono + feedbackState_4;
+        float input_1 = mono + feedbackState_4;
+        float input_2 = mono + feedbackState_1;
+        float input_3 = mono + feedbackState_2;
+        float input_4 = mono + feedbackState_3;
 
         float output_1 = 0.f;
         float output_2 = 0.f;

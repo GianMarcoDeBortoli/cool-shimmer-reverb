@@ -5,22 +5,22 @@
 namespace DSP
 {
 
-class DelayLine
+class DattorroDelayLine
 {
 public:
-    DelayLine(unsigned int maxLengthSamples, unsigned int numChannels);
-    ~DelayLine();
+    DattorroDelayLine(unsigned int maxLengthSamples, unsigned int numChannels);
+    ~DattorroDelayLine();
 
     // No default ctor
-    DelayLine() = delete;
+    DattorroDelayLine() = delete;
 
     // No copy semantics
-    DelayLine(const DelayLine&) = delete;
-    const DelayLine& operator=(const DelayLine&) = delete;
+    DattorroDelayLine(const DattorroDelayLine&) = delete;
+    const DattorroDelayLine& operator=(const DattorroDelayLine&) = delete;
 
     // No move semantics
-    DelayLine(DelayLine&&) = delete;
-    const DelayLine& operator=(DelayLine&&) = delete;
+    DattorroDelayLine(DattorroDelayLine&&) = delete;
+    const DattorroDelayLine& operator=(DattorroDelayLine&&) = delete;
 
     // Clear the contents of the delay buffer
     void clear();
