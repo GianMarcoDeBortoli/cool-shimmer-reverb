@@ -19,6 +19,7 @@ LeakyIntegrator::~LeakyIntegrator()
 void LeakyIntegrator::prepare(double sampleRate)
 {
     coeffRamp.prepare(sampleRate, true, coeff);
+    clear();
 }
 
 

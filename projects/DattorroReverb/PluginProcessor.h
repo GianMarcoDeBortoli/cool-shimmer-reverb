@@ -47,13 +47,13 @@ namespace Param
         static constexpr float PreDelaySkw { 1.f };
 
         static constexpr float ToneControlDefault { 0.3f };
-        static constexpr float ToneControlMin { 0.f };
+        static constexpr float ToneControlMin { 0.001f };
         static constexpr float ToneControlMax { 1.f };
         static constexpr float ToneControlInc { 0.01f };
         static constexpr float ToneControlSkw { 0.5f };
 
         static constexpr float DampFilterCoeffDefault { 0.005f };
-        static constexpr float DampFilterCoeffMin { 0.f };
+        static constexpr float DampFilterCoeffMin { 0.001f };
         static constexpr float DampFilterCoeffMax { 1.f };
         static constexpr float DampFilterCoeffInc { 0.01f };
         static constexpr float DampFilterCoeffSkw { 0.5f };

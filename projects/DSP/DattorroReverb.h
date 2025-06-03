@@ -103,6 +103,7 @@ private:
     // --------- FEEDFORWARD ---------
     // Predelay
     DSP::DelayLine preDelay;
+    DSP::Ramp<float> preDelayRamp;
     // Tone control
     DSP::LeakyIntegrator toneControl;
     // Input Diffusers

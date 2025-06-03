@@ -27,7 +27,7 @@ DattorroReverbProcessor::DattorroReverbProcessor():
     enabled { Param::Range::EnabledDefault },
     enableRamp(0.05f),
     mix { Param::Range::MixDefault },
-    mixRamp(0.001f),
+    mixRamp(0.05f),
     preDelayMs { Param::Range::PreDelayDefault },
     toneControl { Param::Range::ToneControlDefault },
     dampingFilterCoeff { Param::Range::DampFilterCoeffDefault },
@@ -43,7 +43,7 @@ DattorroReverbProcessor::DattorroReverbProcessor():
     [this](float newMix, bool /*force*/)
     {
         mix = std::clamp(newMix, Param::Range::MixMin, Param::Range::MixMax);
-        mixRamp.setTarget(mix, true);
+        mixRamp.setTarget(mix);
     });
     parameterManager.registerParameterCallback(Param::ID::PreDelay, 
     [this](float newPreDelayMs, bool /*force*/)
