@@ -155,7 +155,7 @@ private:
     float decay;
     // Jon Dattorro's Reverb instance
     DSP::DattorroReverb dattorroReverb;
-    juce::AudioBuffer<float> revBuffer;
+    juce::AudioBuffer<float> dattorroBuffer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DattorroReverbProcessor)
 };

@@ -59,6 +59,12 @@ DattorroReverbProcessor::DattorroReverbProcessor():
     });
     // Pitch shifter parameters
     // Keith Barr's reverb parameters
+    parameterManager.registerParameterCallback(Param::ID::BuildUp,
+    [this](float newBuildUpMs, bool /*force*/)
+    {
+        buildUpMs = std::clamp(newBuildUpMs, Param::Range::BuildUpMin, Param::Range::BuildUpMax);
+        buildUpRamp.setTarget(buildUpMs);
+    });
     parameterManager.registerParameterCallback(Param::ID::Brightness,
     [this](float newBrightness, bool /*force*/)
     {
@@ -84,7 +90,7 @@ void DattorroReverbProcessor::prepareToPlay(double newSampleRate, int samplesPer
     sampleRate = std::max(newSampleRate, 1.0);
 
     dattorroReverb.prepare(sampleRate, numChannels);
-    revBuffer.setSize(static_cast<int>(numChannels), samplesPerBlock);
+    dattorroBuffer.setSize(static_cast<int>(numChannels), samplesPerBlock);
 
     enableRamp.prepare(sampleRate, true, enabled ? 1.f : 0.f);
     mixRamp.prepare(sampleRate, true, mix);
@@ -95,6 +101,7 @@ void DattorroReverbProcessor::prepareToPlay(double newSampleRate, int samplesPer
 void DattorroReverbProcessor::releaseResources()
 {
     dattorroReverb.clear();
+    dattorroBuffer.clear();
 }
 
 void DattorroReverbProcessor::processBlock(juce::AudioBuffer<float>& buffer, juce::MidiBuffer& /*midiMessages*/)
@@ -107,18 +114,18 @@ void DattorroReverbProcessor::processBlock(juce::AudioBuffer<float>& buffer, juc
 
     for (unsigned int ch = 0; ch < numChannels; ++ch)
     {
-        revBuffer.copyFrom(ch, 0, buffer.getReadPointer(ch), numSamples);
+        dattorroBuffer.copyFrom(ch, 0, buffer.getReadPointer(ch), numSamples);
     }
 
-    dattorroReverb.process(revBuffer.getArrayOfWritePointers(), buffer.getArrayOfReadPointers(), numChannels, numSamples);
-    enableRamp.applyGain(revBuffer.getArrayOfWritePointers(), numChannels, numSamples);
-    mixRamp.applyGain(revBuffer.getArrayOfWritePointers(), numChannels, numSamples);
+    dattorroReverb.process(dattorroBuffer.getArrayOfWritePointers(), buffer.getArrayOfReadPointers(), numChannels, numSamples);
+    enableRamp.applyGain(dattorroBuffer.getArrayOfWritePointers(), numChannels, numSamples);
+    mixRamp.applyGain(dattorroBuffer.getArrayOfWritePointers(), numChannels, numSamples);
     // Mix dry and wet signals
     float dry = 1.f - mixRamp.getNext();
     for (unsigned int ch = 0; ch < numChannels; ++ch)
     {
         buffer.applyGain(ch, 0, numSamples, dry);
-        buffer.addFrom(ch, 0, revBuffer, ch, 0, numSamples);
+        buffer.addFrom(ch, 0, dattorroBuffer, ch, 0, numSamples);
     }
 
 }
