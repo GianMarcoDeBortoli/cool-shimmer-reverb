@@ -6,14 +6,12 @@ namespace DSP
 DattorroReverb::DattorroReverb(
     double initSampleRate,
     unsigned int initNumChannels,
-    unsigned int initPreDelaySamples,
-    float initToneControlCoeff,
     float initDampingFilterCoeff,
     float initDampingCoeff
 ) :
     sampleRate { initSampleRate },
-    preDelay(initPreDelaySamples, 1u),
-    toneControl(initToneControlCoeff),
+    preDelay(static_cast<unsigned int>(preDelayMs * static_cast<float>(0.001 * sampleRate)), 1u),
+    toneControl(toneControlCoeff),
     inputDiffuser_1(static_cast<unsigned int>(inputDiffDelayMs_1 * static_cast<float>(0.001 * sampleRate)), inputDiffCoeff_1_2, 1u),
     inputDiffuser_2(static_cast<unsigned int>(inputDiffDelayMs_2 * static_cast<float>(0.001 * sampleRate)), inputDiffCoeff_1_2, 1u),
     inputDiffuser_3(static_cast<unsigned int>(inputDiffDelayMs_3 * static_cast<float>(0.001 * sampleRate)), inputDiffCoeff_3_4, 1u),
@@ -30,7 +28,6 @@ DattorroReverb::DattorroReverb(
     delay_left_2(static_cast<unsigned int>(delayMs_left_2 * static_cast<float>(0.001 * sampleRate)), 1u),
     delay_right_2(static_cast<unsigned int>(delayMs_right_2 * static_cast<float>(0.001 * sampleRate)), 1u)
 {
-    preDelayRamp.setRampTime(0.05f);
     decayDiffuser_left_1.setDelayTime(decayDiffDelayMs_left_1);
     decayDiffuser_right_1.setDelayTime(decayDiffDelayMs_right_1);
     decayCoeffRamp.prepare(sampleRate, true, decayCoeff);
@@ -40,15 +37,13 @@ DattorroReverb::~DattorroReverb()
 {
 }
 
-void DattorroReverb::prepare(double newSampleRate, unsigned int newNumChannels, unsigned int preDelaySamples)
+void DattorroReverb::prepare(double newSampleRate, unsigned int newNumChannels)
 {   
     unsigned int numChannels = std::max(newNumChannels, MaxChannels);
     sampleRate = std::max(newSampleRate, 1.0);
 
     // Prepare pre-delay
-    preDelay.prepare(preDelaySamples, 1u);
-    float preDelayMs = static_cast<float>(preDelaySamples) / (0.001f * sampleRate);
-    preDelayRamp.prepare(newSampleRate, true, preDelayMs);
+    preDelay.prepare(static_cast<unsigned int>(preDelayMs * static_cast<float>(0.001 * sampleRate)), 1u);
     // Prepare tone control
     toneControl.prepare(sampleRate);
     // Prepare input diffusers
@@ -128,9 +123,6 @@ void DattorroReverb::process(float* const* output, const float* const* input, un
         float mono { 0.5f * (left + right) };
 
         // Predelay processing
-        float preDelayMs = preDelayRamp.getNext();
-        unsigned int preDelaySamples = static_cast<unsigned int>(preDelayMs * static_cast<float>(0.001 * sampleRate));
-        preDelay.setDelaySamples(preDelaySamples);
         preDelay.process(&mono, &mono, 1u);
 
         // Tone control processing
@@ -215,24 +207,12 @@ void DattorroReverb::process(float* const* output, const float* const* input, un
     }
 }
 
-void DattorroReverb::setPreDelay(unsigned int newPreDelaySamples)
-{
-    float newDelayMs = static_cast<float>(newPreDelaySamples) / (0.001f * sampleRate);
-    preDelayRamp.setTarget(newDelayMs);
-    // preDelay.setDelaySamples(newPreDelaySamples);
-}
-
-void DattorroReverb::setToneControl(float newCoeff)
-{
-    toneControl.setCoeff(newCoeff);
-}
-
-void DattorroReverb::setDampingFilterCoeff(float newCoeff)
+void DattorroReverb::setBrightness(float newCoeff)
 {
     dampingFilter.setCoeff(newCoeff);
 }
 
-void DattorroReverb::setDecayCoeff(float newCoeff)
+void DattorroReverb::setDecay(float newCoeff)
 {
     decayCoeff = std::clamp(newCoeff, 0.f, 1.f);
     decayCoeffRamp.setTarget(decayCoeff);

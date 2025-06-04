@@ -11,21 +11,33 @@ namespace Param
     namespace ID
     {
         static const juce::String Enabled { "enabled" };
-        static const juce::String Mix { "mix" };
-        static const juce::String PreDelay { "predelay" };
-        static const juce::String ToneControl { "tone_control" };
-        static const juce::String DampFilterCoeff { "damping_filter_coeff" };
-        static const juce::String DecayCoeff { "decay_coeff" };
+        static const juce::String Mix { "plugin_mix" };
+        // Pitch shifter parameters
+        static const juce::String Shift1 { "pitchshift_1" };
+        static const juce::String Shift2 { "pitchshift_2" };
+        // Keith Barr's reverb parameters
+        static const juce::String ShiftAmount { "pitchshift_amount" };
+        static const juce::String BuildUp { "rev_build_up" };
+        static const juce::String Size { "rev_size" };
+        static const juce::String Brightness { "rev_brightness" };
+        // Jon Dattorro's reverb parameters
+        static const juce::String Decay { "rev_decay" };
     }
 
     namespace Name
     {
         static const juce::String Enabled { "Enabled" };
-        static const juce::String Mix { "Mix" };
-        static const juce::String PreDelay { "Predelay" };
-        static const juce::String ToneControl { "Tone Control" };
-        static const juce::String DampFilterCoeff { "Damping Filter Coefficient" };
-        static const juce::String DecayCoeff { "Decay Coefficient" };
+        static const juce::String Mix { "Dry/Mix" };
+        // Pitch shifter parameters
+        static const juce::String Shift1 { "Shift 1" };
+        static const juce::String Shift2 { "Shift 2" };
+        // Keith Barr's reverb parameters
+        static const juce::String ShiftAmount { "Amount" };
+        static const juce::String BuildUp { "Build Up" };
+        static const juce::String Size { "Size" };
+        static const juce::String Brightness { "Brightness" };
+        // Jon Dattorro's reverb parameters
+        static const juce::String Decay { "Decay" };
     }
 
     namespace Range
@@ -34,35 +46,50 @@ namespace Param
         static const juce::String EnabledOn { "On" };
         static constexpr bool EnabledDefault { true };
 
-        static constexpr float MixDefault { 0.25f };
+        static constexpr float MixDefault { 0.5f };
         static constexpr float MixMin { 0.f };
         static constexpr float MixMax { 1.f };
         static constexpr float MixInc { 0.01f };
-        static constexpr float MixSkw { 0.5f };
-        
-        static constexpr float PreDelayDefault { 20.f };
-        static constexpr float PreDelayMin { 0.f };
-        static constexpr float PreDelayMax { 100.f };
-        static constexpr float PreDelayInc { 1.f };
-        static constexpr float PreDelaySkw { 1.f };
+        static constexpr float MixSkw { 1.f };
 
-        static constexpr float ToneControlDefault { 0.3f };
-        static constexpr float ToneControlMin { 0.001f };
-        static constexpr float ToneControlMax { 1.f };
-        static constexpr float ToneControlInc { 0.01f };
-        static constexpr float ToneControlSkw { 0.5f };
+        // Pitch shifter parameters
+        static constexpr float ShiftDefault { 0.5f };
+        static constexpr float ShiftMin { 0.f };
+        static constexpr float ShiftMax { 1.f };
+        static constexpr float ShiftInc { 0.01f };
+        static constexpr float ShiftSkw { 1.f };
 
-        static constexpr float DampFilterCoeffDefault { 0.005f };
-        static constexpr float DampFilterCoeffMin { 0.001f };
-        static constexpr float DampFilterCoeffMax { 1.f };
-        static constexpr float DampFilterCoeffInc { 0.01f };
-        static constexpr float DampFilterCoeffSkw { 0.5f };
+        // Keith Barr's reverb parameters
+        static constexpr float ShiftAmountDefault { 0.5f };
+        static constexpr float ShiftAmountMin { 0.f };
+        static constexpr float ShiftAmountMax { 1.f };
+        static constexpr float ShiftAmountInc { 0.01f };
+        static constexpr float ShiftAmountSkw { 1.f };
 
-        static constexpr float DecayCoeffDefault { 0.5f };
-        static constexpr float DecayCoeffMin { 0.f };
-        static constexpr float DecayCoeffMax { 1.f };
-        static constexpr float DecayCoeffInc { 0.01f };
-        static constexpr float DecayCoeffSkw { 0.5f };
+        static constexpr float BuildUpDefault { 20.f };
+        static constexpr float BuildUpMin { 0.f };
+        static constexpr float BuildUpMax { 100.f };
+        static constexpr float BuildUpInc { 0.1f };
+        static constexpr float BuildUpSkw { 0.5f };
+
+        static constexpr float SizeDefault { 0.5f };
+        static constexpr float SizeMin { 0.f };
+        static constexpr float SizeMax { 1.f };
+        static constexpr float SizeInc { 0.01f };
+        static constexpr float SizeSkw { 1.f };
+
+        static constexpr float BrightnessDefault { 0.5f };
+        static constexpr float BrightnessMin { 0.f };
+        static constexpr float BrightnessMax { 1.f };
+        static constexpr float BrightnessInc { 0.01f };
+        static constexpr float BrightnessSkw { 1.f };
+
+        // Jon Dattorro's reverb parameters
+        static constexpr float DecayDefault { 0.5f };
+        static constexpr float DecayMin { 0.f };
+        static constexpr float DecayMax { 1.f };
+        static constexpr float DecayInc { 0.01f };
+        static constexpr float DecaySkw { 1.f };
     }
 
     namespace Units
@@ -110,21 +137,25 @@ private:
     double sampleRate { 48000.0 };
     //Enable/Disable the effect
     DSP::Ramp<float> enableRamp;
-    bool enabled { true };
+    bool enabled;
     // Mix dry/wet
     DSP::Ramp<float> mixRamp;
-    float mix { 1.0f };
-    // Dattorro Reverb instance
+    float mix;
+    // Pitch shifter parameters
+    float shift1;
+    float shift2;
+    // Keith Barr's reverb parameters
+    DSP::Ramp<float> amountRamp;
+    float amount;
+    DSP::Ramp<float> buildUpRamp;
+    float buildUpMs;
+    float size;
+    float brightness;
+    // Jon Dattorro's Reverb parameters
+    float decay;
+    // Jon Dattorro's Reverb instance
     DSP::DattorroReverb dattorroReverb;
     juce::AudioBuffer<float> revBuffer;
-    // Predelay
-    float preDelayMs;
-    // Tone control
-    float toneControl;
-    // Damping
-    float dampingFilterCoeff;
-    // Decay
-    float decayCoeff;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(DattorroReverbProcessor)
 };

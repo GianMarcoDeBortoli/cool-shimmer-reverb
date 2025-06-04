@@ -17,8 +17,6 @@ public:
     DattorroReverb(
         double initSampleRate = 29761,               // Sample rate in Hz
         unsigned int initNumChannels = 2u,           // Number of channels (1 or 2)
-        unsigned int initPreDelaySamples = 9600u,    // Predelay in samples
-        float initToneControlCoeff = 0.3f,           // Tone control coefficient
         float initDampingFilterCoeff = 0.005f,       // Damping filter coefficient
         float initDecayCoeff = 0.50f                 // Damping coefficient
     );
@@ -37,17 +35,16 @@ public:
     void clear();
 
     // Prepare method
-    void prepare(double newSampleRate, unsigned int newNumChannels, unsigned int newPreDelaySamples);
+    void prepare(double newSampleRate, unsigned int newNumChannels);
 
     // Process block of audio without modulation
     void process(float* const* output, const float* const* input, unsigned int numChannels, unsigned int numSamples);
 
     // ==================================================
     // Set methods
-    void setPreDelay(unsigned int newPreDelaySamples);
-    void setToneControl(float newCoeff);
-    void setDampingFilterCoeff(float newCoeff);
-    void setDecayCoeff(float newCoeff);
+    void setBandwidth(float newCoeff);
+    void setBrightness(float newCoeff);
+    void setDecay(float newCoeff);
 
     // ==================================================
     // Constants for the Dattorro Reverb algorithm
@@ -55,6 +52,10 @@ public:
     static constexpr unsigned int MaxChannels { 2 };
     // Sample rate in Hz used in the original algorithm
     static constexpr float sampleRate_Original { 30000.f };
+    // Predelay
+    static constexpr float preDelayMs { 20.f };
+    // Tone control coefficient
+    static constexpr float toneControlCoeff { 0.9995f };
     // Input diffusers delay line lengths in milliseconds
     static constexpr float inputDiffCoeff_1_2 { 0.750f };
     static constexpr float inputDiffDelayMs_1 { 142.f / sampleRate_Original * 1000.f };
@@ -103,7 +104,6 @@ private:
     // --------- FEEDFORWARD ---------
     // Predelay
     DSP::DelayLine preDelay;
-    DSP::Ramp<float> preDelayRamp;
     // Tone control
     DSP::LeakyIntegrator toneControl;
     // Input Diffusers
