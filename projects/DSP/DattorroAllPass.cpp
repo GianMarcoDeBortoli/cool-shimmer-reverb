@@ -22,6 +22,7 @@ void AllPass::setCoeff(const float newCoeff)
 
 void AllPass::setDelayTime(float newDelaySamples)
 {
+    delayTimeSamples = newDelaySamples;
     delayLine.setDelaySamples(newDelaySamples);
 }
 

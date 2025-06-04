@@ -58,16 +58,20 @@ public:
     static constexpr float toneControlCoeff { 0.9995f };
     // Input diffusers delay line lengths in milliseconds
     static constexpr float inputDiffCoeff_1_2 { 0.750f };
+    // static constexpr float inputDiffCoeff_1_2 { 0.f };
     static constexpr float inputDiffDelayMs_1 { 142.f / sampleRate_Original * 1000.f };
     static constexpr float inputDiffDelayMs_2 { 107.f / sampleRate_Original * 1000.f };
     static constexpr float inputDiffCoeff_3_4 { 0.625f };
+    // static constexpr float inputDiffCoeff_3_4 { 0.f };
     static constexpr float inputDiffDelayMs_3 { 379.f / sampleRate_Original * 1000.f };
     static constexpr float inputDiffDelayMs_4 { 277.f / sampleRate_Original * 1000.f };
     // Decay diffusers delay line lengths in milliseconds
     static constexpr float decayDiffCoeff_1 { 0.70f };
+    // static constexpr float decayDiffCoeff_1 { 0.f };
     static constexpr float decayDiffDelayMs_left_1  {  672.f / sampleRate_Original * 1000.f };
     static constexpr float decayDiffDelayMs_right_1 {  908.f / sampleRate_Original * 1000.f };
     static constexpr float decayDiffCoeff_2 { 0.50f };
+    // static constexpr float decayDiffCoeff_2 { 0.f };
     static constexpr float decayDiffDelayMs_left_2  { 1800.f / sampleRate_Original * 1000.f };
     static constexpr float decayDiffDelayMs_right_2 { 2656.f / sampleRate_Original * 1000.f };
     // Delay lines delay lengths in milliseconds
@@ -97,7 +101,7 @@ public:
     static constexpr LFO::LFOType lfoType { LFO::Sin };     // LFO wave type
     static constexpr float lfoFreqHz { 0.5f };              // LFO frequency in Hz
     static constexpr float lfoDepthMs { 16.f / sampleRate_Original * 1000.f };  // LFO depth in milliseconds
-    static constexpr float lfoOffsetMs { 0.1f };            // LFO offset in milliseconds
+    static constexpr float lfoOffsetMs { 0.f };            // LFO offset in milliseconds
 
 private:
     double sampleRate;
