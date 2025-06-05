@@ -87,7 +87,7 @@ void GranularPitchShifter::process(float* const* output, const float* const* inp
             // Crossfade phase in [0, 1]
             float fade1 = std::cos(halfPi * phase);
             float fade2  = std::sin(halfPi * phase);
-            out[n] = sample1 * fade1 + sample2 * fade2;
+            out[n] = 0.5 * (sample1 * fade1 + sample2 * fade2);
 
         }
     }

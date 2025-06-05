@@ -27,7 +27,7 @@ ShimmerAudioProcessor::ShimmerAudioProcessor() :
     mix { Param::Ranges::MixDefault },
     mixRamp(0.05f),
     // Shimmer effect
-    shimmer(Param::Ranges::BuildupMax, 20.f, 2),
+    shimmer(Param::Ranges::BuildupMax, 5.f, 2),
     // Pitch shifter parameters
     shift1 { Param::Ranges::Shift1Default },
     shift2 { Param::Ranges::Shift2Default },

@@ -63,9 +63,9 @@ namespace Param
         static constexpr float MixSkw { 1.f };
 
         // Pitch Shifter Parameters
-        static constexpr float BuildupDefault { 500.f };
+        static constexpr float BuildupDefault { 10.f };
         static constexpr float BuildupMin { 1.f };
-        static constexpr float BuildupMax { 2500.f };
+        static constexpr float BuildupMax { 100.f };
         static constexpr float BuildupInc { 0.01f };
         static constexpr float BuildupSkw { 0.5f };
 
