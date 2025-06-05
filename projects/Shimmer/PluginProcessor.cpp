@@ -16,8 +16,18 @@ ShimmerAudioProcessor::ShimmerAudioProcessor() :
     parameterManager(*this, ProjectInfo::projectName, Parameters),
     shimmer(Param::Ranges::BuildupMax, 20.f, 2),
     KBReverb(MaxChannels, Param::Ranges::DampCoeffDefault),
+    eq(2), // 2 band parametric equalizer
     amountRamp(Param::Ranges::AmountDefault)
 {
+    // Set the Parameteric Equalizer 
+    eq.setBandType(0, static_cast<DSP::ParametricEqualizer::FilterType>(std::round(2)));    // Low Shelf
+    eq.setBandType(1, static_cast<DSP::ParametricEqualizer::FilterType>(std::round(5)));    // High Shelf 
+    eq.setBandFrequency(0, 15000.f); // Low Shelf frequency
+    eq.setBandFrequency(1, 100.f);   // High Shelf frequency
+    eq.setBandResonance(0, 0.7071f); // Low Shelf resonance
+    eq.setBandResonance(1, 0.7071f); // High Shelf resonance
+    eq.setBandGain(0, 8.1f);         // Low Shelf gain ( I found these gain values from PlugInDoctor, It is going to give a boost unfortunately)
+    eq.setBandGain(1, 8.1f);         // High Shelf gain
     // Pitch Shifter Parameters
     parameterManager.registerParameterCallback(Param::ID::Amount,
     [this] (float value, bool /*force*/)
@@ -58,6 +68,7 @@ void ShimmerAudioProcessor::prepareToPlay(double newSampleRate, int samplesPerBl
     const unsigned int numChannels { static_cast<unsigned int>(std::max(getMainBusNumInputChannels(), getMainBusNumOutputChannels())) };
 
     shimmer.prepare(newSampleRate, Param::Ranges::BuildupMax, numChannels, samplesPerBlock);
+    eq.prepare(newSampleRate, numChannels);
     KBReverb.prepare(newSampleRate, numChannels);
     amountRamp.prepare(newSampleRate, true, Param::Ranges::AmountDefault);
 
@@ -70,6 +81,7 @@ void ShimmerAudioProcessor::prepareToPlay(double newSampleRate, int samplesPerBl
 void ShimmerAudioProcessor::releaseResources()
 {
     shimmer.clear();
+    eq.clear();
     KBReverb.clear();
     fxBuffer.clear();
 }
@@ -86,6 +98,7 @@ void ShimmerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
         fxBuffer.copyFrom(ch, 0, buffer, ch, 0, static_cast<int>(numSamples));
 
     shimmer.process(fxBuffer.getArrayOfWritePointers(), fxBuffer.getArrayOfReadPointers(), numChannels, numSamples);
+    eq.process(fxBuffer.getArrayOfWritePointers(), fxBuffer.getArrayOfReadPointers(), numChannels, numSamples);
     KBReverb.process(fxBuffer.getArrayOfWritePointers(), fxBuffer.getArrayOfReadPointers(), numChannels, numSamples);
     // Add KR reverb
     amountRamp.applyGain(fxBuffer.getArrayOfWritePointers(), numChannels, numSamples);

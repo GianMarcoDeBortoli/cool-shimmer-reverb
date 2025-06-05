@@ -3,6 +3,7 @@
 #include <JuceHeader.h>
 #include "Shimmer.h"
 #include "KeithBarrReverb.h"
+#include "ParametricEqualizer.h"
 #include "Ramp.h"
 
 namespace Param
@@ -17,6 +18,8 @@ namespace Param
 
         // Keith Barr Reverb Parameters
         static const juce::String Damping { "damping" };
+
+        // Parametric Equalizer Parameters
     }
 
     namespace Name
@@ -49,9 +52,9 @@ namespace Param
         static constexpr float Shift2Inc { 0.01f };
         static constexpr float Shift2Skw { 1.0f };
 
-        static constexpr float AmountDefault { 0.5f };
+        static constexpr float AmountDefault { 0.25f };
         static constexpr float AmountMin { 0.f };
-        static constexpr float AmountMax { 1.f };
+        static constexpr float AmountMax { 0.5f };
         static constexpr float AmountInc { 0.01f };
         static constexpr float AmountSkw { 1.0f };
 
@@ -110,6 +113,7 @@ private:
     DSP::Shimmer shimmer;
     DSP::KeithBarrReverb KBReverb;
     DSP::Ramp<float> amountRamp;
+    DSP::ParametricEqualizer eq;
     // DSP::Ramp<float> wetRamp;
     // DSP::Ramp<float> dryRamp;
 

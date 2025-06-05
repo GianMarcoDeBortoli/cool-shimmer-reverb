@@ -445,7 +445,10 @@ add_plugin(shimmer
         ${shimmer_source}/DelayLine.cpp
         ${shimmer_source}/KeithBarrReverb.cpp
         ${shimmer_source}/AllPass.cpp
+        ${shimmer_source}/ParametricEqualizer.cpp
+        ${shimmer_source}/Biquad.cpp
         ${dsp_source}/GranularPitchShifter.cpp
+        ${gui_source}/MrtaLAF.cpp
     INCLUDE_DIRS
         ${gui_source}
         ${dsp_source}
