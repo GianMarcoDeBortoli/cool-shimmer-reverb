@@ -5,6 +5,7 @@
 #include "LeakyIntegrator.h"
 #include "DattorroAllPass.h"
 #include "LFO.h"
+#include "Ramp.h"
 
 namespace DSP
 {
@@ -16,17 +17,8 @@ public:
     DattorroReverb(
         double initSampleRate = 29761,               // Sample rate in Hz
         unsigned int initNumChannels = 2u,           // Number of channels (1 or 2)
-        unsigned int initPreDelaySamples = 9600u,    // Predelay in samples
-        float initToneControlCoeff = 0.9995f,        // Tone control coefficient
-        float initInputDiffusionCoeff_1_2 = 0.750f,  // Input diffuser 1 & 2 coefficient
-        float initInputDiffusionCoeff_3_4 = 0.625f,  // Input diffuser 3 & 4 coefficient
-        LFO::LFOType initLFOType = LFO::Sin,         // LFO wave type
-        float initLFOFreqHz = 0.5f,                  // LFO frequency in Hz
-        float initLFODepthMs = 2.f,                  // LFO depth in milliseconds
-        float initDecayDiffusionCoeff_1 = 0.70f,     // Decay diffuser 1 left & right coefficient
         float initDampingFilterCoeff = 0.005f,       // Damping filter coefficient
-        float initDecayCoeff = 0.50f,                // Damping coefficient
-        float initDecayDiffusionCoeff_2 = 0.50f      // Decay diffuser 2 left & right coefficient
+        float initDecayCoeff = 0.50f                 // Damping coefficient
     );
     // Destructor
     ~DattorroReverb();
@@ -43,31 +35,16 @@ public:
     void clear();
 
     // Prepare method
-    void prepare(double newSampleRate, unsigned int newNumChannels, unsigned int newPreDelaySamples);
+    void prepare(double newSampleRate, unsigned int newNumChannels);
 
     // Process block of audio without modulation
     void process(float* const* output, const float* const* input, unsigned int numChannels, unsigned int numSamples);
 
     // ==================================================
     // Set methods
-    void setPreDelay(unsigned int newPreDelaySamples);
-
-    void setToneControl(float newCoeff);
-
-    void setInputDiffusionCoeff_1(float newDiffCoeff);
-    void setInputDiffusionCoeff_2(float newDiffCoeff);
-
-    void setLFOtype(LFO::LFOType newModType);
-    void setLFOfreqHz(float newModRateHz);
-    void setLFOdepthMs(float newModDepthMs);
-
-    void setDecayDiffusionCoeff_1(float newDiffCoeff);
-
-    void setDampingFilterCoeff(float newCoeff);
-
-    void setDecayCoeff(float newCoeff);
-
-    void setDecayDiffusionCoeff_2(float newDiffCoeff);
+    void setBandwidth(float newCoeff);
+    void setBrightness(float newCoeff);
+    void setDecay(float newCoeff);
 
     // ==================================================
     // Constants for the Dattorro Reverb algorithm
@@ -75,14 +52,26 @@ public:
     static constexpr unsigned int MaxChannels { 2 };
     // Sample rate in Hz used in the original algorithm
     static constexpr float sampleRate_Original { 30000.f };
+    // Predelay
+    static constexpr float preDelayMs { 20.f };
+    // Tone control coefficient
+    static constexpr float toneControlCoeff { 0.9995f };
     // Input diffusers delay line lengths in milliseconds
+    static constexpr float inputDiffCoeff_1_2 { 0.750f };
+    // static constexpr float inputDiffCoeff_1_2 { 0.f };
     static constexpr float inputDiffDelayMs_1 { 142.f / sampleRate_Original * 1000.f };
     static constexpr float inputDiffDelayMs_2 { 107.f / sampleRate_Original * 1000.f };
+    static constexpr float inputDiffCoeff_3_4 { 0.625f };
+    // static constexpr float inputDiffCoeff_3_4 { 0.f };
     static constexpr float inputDiffDelayMs_3 { 379.f / sampleRate_Original * 1000.f };
     static constexpr float inputDiffDelayMs_4 { 277.f / sampleRate_Original * 1000.f };
     // Decay diffusers delay line lengths in milliseconds
+    static constexpr float decayDiffCoeff_1 { 0.70f };
+    // static constexpr float decayDiffCoeff_1 { 0.f };
     static constexpr float decayDiffDelayMs_left_1  {  672.f / sampleRate_Original * 1000.f };
     static constexpr float decayDiffDelayMs_right_1 {  908.f / sampleRate_Original * 1000.f };
+    static constexpr float decayDiffCoeff_2 { 0.50f };
+    // static constexpr float decayDiffCoeff_2 { 0.f };
     static constexpr float decayDiffDelayMs_left_2  { 1800.f / sampleRate_Original * 1000.f };
     static constexpr float decayDiffDelayMs_right_2 { 2656.f / sampleRate_Original * 1000.f };
     // Delay lines delay lengths in milliseconds
@@ -109,7 +98,10 @@ public:
     static constexpr float tapOutMs_right_7 {  121.f / sampleRate_Original * 1000.f };
 
     // LFO
-    static constexpr float lfoOffsetMs { 0.1f };
+    static constexpr LFO::LFOType lfoType { LFO::Sin };     // LFO wave type
+    static constexpr float lfoFreqHz { 0.5f };              // LFO frequency in Hz
+    static constexpr float lfoDepthMs { 16.f / sampleRate_Original * 1000.f };  // LFO depth in milliseconds
+    static constexpr float lfoOffsetMs { 0.f };            // LFO offset in milliseconds
 
 private:
     double sampleRate;
@@ -135,6 +127,7 @@ private:
     // Damping
     DSP::LeakyIntegrator dampingFilter;
     // Decay
+    DSP::Ramp<float> decayCoeffRamp;
     float decayCoeff;
     // Decay Diffusers 2
     DSP::AllPass decayDiffuser_left_2;
