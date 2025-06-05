@@ -31,7 +31,7 @@ public:
     // Process audio with the currently (fixed) set delay time
     void process(float* const* output, const float* const* input, unsigned int numChannels, unsigned int numSamples);
 
-    // Single sample flavour of the fixed delay time processing
+    // Single-sample flavour of the fixed delay time processing
     void process(float* output, const float* input, unsigned int numChannels);
 
     // Process audio thru the delay line with audio rate modulation
@@ -44,8 +44,17 @@ public:
     // Single sample flavour of the modulated delay time processing
     void process(float* audioOutput, const float* audioInput, const float* modInput, unsigned int numChannels);
 
+    // Single-channel single-sample flavour of the modulated delay time processing
+    void process(float* audioOutput, const float* audioInput, const float* modInput, int channel);
+
     // Set the current delay time in samples
     void setDelaySamples(unsigned int samples);
+
+    // Get sample at requested index
+    float getSample(unsigned int channel, float index) const;
+
+     // Get sample at requested index with modulation
+    float getSample(unsigned int channel, float index, const float* modInput) const;
 
 private:
     std::vector<std::vector<float>> delayBuffer;
