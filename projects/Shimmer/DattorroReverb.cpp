@@ -12,24 +12,24 @@ DattorroReverb::DattorroReverb(
     sampleRate { initSampleRate },
     preDelay(static_cast<unsigned int>(preDelayMs * static_cast<float>(0.001 * sampleRate)), 1u),
     toneControl(toneControlCoeff),
-    inputDiffuser_1(static_cast<unsigned int>(inputDiffDelayMs_1 * static_cast<float>(0.001 * sampleRate)), inputDiffCoeff_1_2, 1u),
-    inputDiffuser_2(static_cast<unsigned int>(inputDiffDelayMs_2 * static_cast<float>(0.001 * sampleRate)), inputDiffCoeff_1_2, 1u),
-    inputDiffuser_3(static_cast<unsigned int>(inputDiffDelayMs_3 * static_cast<float>(0.001 * sampleRate)), inputDiffCoeff_3_4, 1u),
-    inputDiffuser_4(static_cast<unsigned int>(inputDiffDelayMs_4 * static_cast<float>(0.001 * sampleRate)), inputDiffCoeff_3_4, 1u),
+    inputDiffuser_1(inputDiffDelayMs_1, inputDiffCoeff_1_2, 1u),
+    inputDiffuser_2(inputDiffDelayMs_2, inputDiffCoeff_1_2, 1u),
+    inputDiffuser_3(inputDiffDelayMs_3, inputDiffCoeff_3_4, 1u),
+    inputDiffuser_4(inputDiffDelayMs_4, inputDiffCoeff_3_4, 1u),
     lfo(lfoType, lfoFreqHz, lfoDepthMs, 0.f),
-    decayDiffuser_left_1(static_cast<unsigned int>((decayDiffDelayMs_left_1 + lfoDepthMs) * static_cast<float>(0.001 * sampleRate)), decayDiffCoeff_1, 1u),
-    decayDiffuser_right_1(static_cast<unsigned int>((decayDiffDelayMs_right_1 + lfoDepthMs) * static_cast<float>(0.001 * sampleRate)), decayDiffCoeff_1, 1u),
+    decayDiffuser_left_1(decayDiffDelayMs_left_1 + lfoDepthMs, decayDiffCoeff_1, 1u),
+    decayDiffuser_right_1(decayDiffDelayMs_right_1 + lfoDepthMs, decayDiffCoeff_1, 1u),
     delay_left_1(static_cast<unsigned int>(delayMs_left_1 * static_cast<float>(0.001 * sampleRate)), 1u),
     delay_right_1(static_cast<unsigned int>(delayMs_right_1 * static_cast<float>(0.001 * sampleRate)), 1u),
     dampingFilter(initDampingFilterCoeff),
     decayCoeff { initDampingCoeff },
-    decayDiffuser_left_2(static_cast<unsigned int>(decayDiffDelayMs_left_2 * static_cast<float>(0.001 * sampleRate)), decayDiffCoeff_2, 1u),
-    decayDiffuser_right_2(static_cast<unsigned int>(decayDiffDelayMs_right_2 * static_cast<float>(0.001 * sampleRate)), decayDiffCoeff_2, 1u),
+    decayDiffuser_left_2(decayDiffDelayMs_left_2, decayDiffCoeff_2, 1u),
+    decayDiffuser_right_2(decayDiffDelayMs_right_2, decayDiffCoeff_2, 1u),
     delay_left_2(static_cast<unsigned int>(delayMs_left_2 * static_cast<float>(0.001 * sampleRate)), 1u),
     delay_right_2(static_cast<unsigned int>(delayMs_right_2 * static_cast<float>(0.001 * sampleRate)), 1u)
 {
-    decayDiffuser_left_1.setDelayTime(static_cast<unsigned int>(decayDiffDelayMs_left_1  * static_cast<float>(0.001 * sampleRate)));
-    decayDiffuser_right_1.setDelayTime(static_cast<unsigned int>(decayDiffDelayMs_right_1  * static_cast<float>(0.001 * sampleRate)));
+    decayDiffuser_left_1.setDelayTime(decayDiffDelayMs_left_1);
+    decayDiffuser_right_1.setDelayTime(decayDiffDelayMs_right_1);
     decayCoeffRamp.prepare(sampleRate, true, decayCoeff);
 }
 
@@ -47,15 +47,15 @@ void DattorroReverb::prepare(double newSampleRate, unsigned int newNumChannels)
     // Prepare tone control
     toneControl.prepare(sampleRate);
     // Prepare input diffusers
-    inputDiffuser_1.prepare(1u);
-    inputDiffuser_2.prepare(1u);
-    inputDiffuser_3.prepare(1u);
-    inputDiffuser_4.prepare(1u);
+    inputDiffuser_1.prepare(sampleRate, 1u);
+    inputDiffuser_2.prepare(sampleRate, 1u);
+    inputDiffuser_3.prepare(sampleRate, 1u);
+    inputDiffuser_4.prepare(sampleRate, 1u);
     // Prepare LFO
     lfo.prepare(sampleRate);
     // Prepare decay diffusers 1
-    decayDiffuser_left_1.prepare(1u);
-    decayDiffuser_right_1.prepare(1u);
+    decayDiffuser_left_1.prepare(sampleRate, 1u);
+    decayDiffuser_right_1.prepare(sampleRate, 1u);
     // Prepare delay lines 1
     delay_left_1.prepare(static_cast<unsigned int>(delayMs_left_1 * static_cast<float>(0.001 * sampleRate)), 1u);
     delay_right_1.prepare(static_cast<unsigned int>(delayMs_right_1 * static_cast<float>(0.001 * sampleRate)), 1u);
@@ -64,8 +64,8 @@ void DattorroReverb::prepare(double newSampleRate, unsigned int newNumChannels)
     // Prepare decay coefficient ramp
     decayCoeffRamp.prepare(sampleRate, true, decayCoeff);
     // Prepare decay diffusers 2
-    decayDiffuser_left_2.prepare(1u);
-    decayDiffuser_right_2.prepare(1u);
+    decayDiffuser_left_2.prepare(sampleRate, 1u);
+    decayDiffuser_right_2.prepare(sampleRate, 1u);
     // Prepare delay lines 2
     delay_left_2.prepare(static_cast<unsigned int>(delayMs_left_2 * static_cast<float>(0.001 * sampleRate)), 1u);
     delay_right_2.prepare(static_cast<unsigned int>(delayMs_right_2 * static_cast<float>(0.001 * sampleRate)), 1u);

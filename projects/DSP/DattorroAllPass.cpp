@@ -22,6 +22,7 @@ void AllPass::setCoeff(const float newCoeff)
 
 void AllPass::setDelayTime(float newDelaySamples)
 {
+    delayTimeSamples = newDelaySamples;
     delayLine.setDelaySamples(newDelaySamples);
 }
 
@@ -33,6 +34,7 @@ float AllPass::getSample(unsigned int channel, unsigned int index)
 void AllPass::prepare(unsigned int newNumChannels)
 {
     delayLine.prepare(delayTimeSamples, newNumChannels);
+    clear();
 }
 
 

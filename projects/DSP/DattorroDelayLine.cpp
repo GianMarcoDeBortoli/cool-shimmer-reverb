@@ -42,7 +42,7 @@ void DelayLine::prepare(unsigned int newLengthSamples, unsigned int numChannels)
 {
     delayBuffer.clear();
     for (unsigned int ch = 0; ch < numChannels; ++ch)
-        delayBuffer.emplace_back(std::max(delayBufferSize + 1u, 1u), 0.f);
+        delayBuffer.emplace_back(std::max(delayBufferSize, 1u), 0.f);
 
     delaySamples = newLengthSamples;
 }
@@ -84,7 +84,7 @@ void DelayLine::process(float* audioOutput, const float* audioInput, const float
         const float mFrac1 { 1.f - mFrac0 };
 
         // Calculate read indeces
-        const unsigned int readIndex0 { (workingReadIndex + delayBufferSize + static_cast<unsigned int>(mFloor)) % delayBufferSize };
+        const unsigned int readIndex0 { (workingReadIndex + delayBufferSize - static_cast<unsigned int>(mFloor)) % delayBufferSize };
         const unsigned int readIndex1 { (readIndex0 + delayBufferSize - 1u) % delayBufferSize };
 
         // Read from delay line

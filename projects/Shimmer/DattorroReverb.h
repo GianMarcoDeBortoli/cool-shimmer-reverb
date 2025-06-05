@@ -1,9 +1,9 @@
 #pragma once
 
 #include <JuceHeader.h>
-#include "DattorroDelayLine.h"
+#include "DelayLine.h"
 #include "LeakyIntegrator.h"
-#include "DattorroAllPass.h"
+#include "AllPass.h"
 #include "LFO.h"
 #include "Ramp.h"
 
@@ -101,7 +101,7 @@ public:
     static constexpr LFO::LFOType lfoType { LFO::Sin };     // LFO wave type
     static constexpr float lfoFreqHz { 0.5f };              // LFO frequency in Hz
     static constexpr float lfoDepthMs { 16.f / sampleRate_Original * 1000.f };  // LFO depth in milliseconds
-    static constexpr float lfoOffsetMs { 0.f };            // LFO offset in milliseconds
+    static constexpr float lfoOffsetMs { 0.f };             // LFO offset in milliseconds
 
 private:
     double sampleRate;

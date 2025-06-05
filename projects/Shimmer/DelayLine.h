@@ -48,16 +48,15 @@ public:
     void process(float* audioOutput, const float* audioInput, const float* modInput, int channel);
 
     // Set the current delay time in samples
-    void setDelaySamples(unsigned int samples);
+    void setDelaySamples(unsigned int newDelaySamples);
 
     // Get sample at requested index
-    float getSample(unsigned int channel, float index) const;
+    float getSample(unsigned int channel, unsigned int index) const;
 
-     // Get sample at requested index with modulation
-    float getSample(unsigned int channel, float index, const float* modInput) const;
 
 private:
     std::vector<std::vector<float>> delayBuffer;
+    unsigned int delayBufferSize { 0 };
     unsigned int delaySamples { 0 };
     unsigned int writeIndex { 0 };
 };
