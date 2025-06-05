@@ -448,9 +448,12 @@ add_plugin(shimmer
         ${shimmer_source}/AllPass.cpp
         ${shimmer_source}/ParametricEqualizer.cpp
         ${shimmer_source}/Biquad.cpp
-        ${dsp_source}/GranularPitchShifter.cpp
+        ${shimmer_source}/LFO.cpp
+        ${shimmer_source}/Ramp.h
+        ${shimmer_source}/DattorroReverb.cpp
+        ${shimmer_source}/LeakyIntegrator.cpp
+        ${shimmer_source}/GranularPitchShifter.cpp
         ${gui_source}/MrtaLAF.cpp
     INCLUDE_DIRS
         ${gui_source}
-        ${dsp_source}
         ${shimmer_source})
