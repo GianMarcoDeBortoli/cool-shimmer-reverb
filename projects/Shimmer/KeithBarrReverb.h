@@ -37,7 +37,7 @@ public:
     void process(float* const*  output, const float* const* input, unsigned int numChannels, unsigned int numSamples);
 
     // ==================================================
-    void setDampingFilterCoeff(float newCoeff);
+    void setDampingCoeff(float newCoeff);
 
     // ==================================================
     // Constants for the Keith Barr Reverb algorithm

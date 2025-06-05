@@ -2,28 +2,38 @@
 
 #include <JuceHeader.h>
 #include "Shimmer.h"
+#include "KeithBarrReverb.h"
 #include "Ramp.h"
 
 namespace Param
 {
     namespace ID
     {
+        // Pitch Shifter Parameters
         static const juce::String Buildup { "buildup" };
         static const juce::String Shift1 { "shift1" };
         static const juce::String Shift2 { "shift2" };
         static const juce::String Amount {"amount"};
+
+        // Keith Barr Reverb Parameters
+        static const juce::String Damping { "damping" };
     }
 
     namespace Name
     {
+        // Pitch Shifter Parameters
         static const juce::String Buildup { "Buildup" };
         static const juce::String Shift1 { "Shift 1" };
         static const juce::String Shift2 { "Shift 2" };
         static const juce::String Amount {"Amount" };   
+
+        // Keith Barr Reverb Parameters
+        static const juce::String Damping { "Damping" };
     }
 
     namespace Ranges
     {
+        // Pitch Shifter Parameters
         static constexpr float BuildupMin { 1.f };
         static constexpr float BuildupMax { 2500.f };
         static constexpr float BuildupInc { 0.01f };
@@ -44,6 +54,13 @@ namespace Param
         static constexpr float AmountMax { 1.f };
         static constexpr float AmountInc { 0.01f };
         static constexpr float AmountSkw { 1.0f };
+
+        // Keith Barr Reverb Parameters
+        static constexpr float DampCoeffDefault { 0.5f };
+        static constexpr float DampCoeffMin { 0.f };
+        static constexpr float DampCoeffMax { 0.9f }; // Avoid feedback to saturate
+        static constexpr float DampCoeffInc { 0.01f };
+        static constexpr float DampCoeffSkw { 1.0f };       
     }
 
     namespace Units
@@ -91,7 +108,7 @@ public:
 private:
     mrta::ParameterManager parameterManager;
     DSP::Shimmer shimmer;
-
+    DSP::KeithBarrReverb KBReverb;
     DSP::Ramp<float> amountRamp;
     // DSP::Ramp<float> wetRamp;
     // DSP::Ramp<float> dryRamp;

@@ -146,8 +146,8 @@ void KeithBarrReverb::process(float* const* output, const float* const* input, u
 }
 
 
-void KeithBarrReverb::setDampingFilterCoeff(float newCoeff)
+void KeithBarrReverb::setDampingCoeff(float newCoeff)
 {
-    dampingCoeff = std::clamp(newCoeff, 0.0f, 1.0f);
+    dampingCoeff = std::clamp(newCoeff, 0.0f, 0.9f);
 }
 }

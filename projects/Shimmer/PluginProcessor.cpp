@@ -8,14 +8,17 @@ static const std::vector<mrta::ParameterInfo> Parameters
     { Param::ID::Buildup,       Param::Name::Buildup,       Param::Units::Ms,  500.f,  Param::Ranges::BuildupMin,       Param::Ranges::BuildupMax,       Param::Ranges::BuildupInc,       Param::Ranges::BuildupSkw },
     { Param::ID::Shift1,   Param::Name::Shift1,   "",                2.f,   Param::Ranges::Shift1Min,   Param::Ranges::Shift1Max,   Param::Ranges::Shift1Inc,   Param::Ranges::Shift1Skw },
     { Param::ID::Shift2,   Param::Name::Shift2,   "",                0.5f,   Param::Ranges::Shift2Min,   Param::Ranges::Shift2Max,   Param::Ranges::Shift2Inc,   Param::Ranges::Shift2Skw },
-    { Param::ID::Amount,   Param::Name::Amount, "", Param::Ranges::AmountDefault, Param::Ranges::AmountMin, Param::Ranges::AmountMax, Param::Ranges::AmountInc, Param::Ranges::AmountSkw }
+    { Param::ID::Amount,   Param::Name::Amount, "", Param::Ranges::AmountDefault, Param::Ranges::AmountMin, Param::Ranges::AmountMax, Param::Ranges::AmountInc, Param::Ranges::AmountSkw },
+    { Param::ID::Damping,  Param::Name::Damping, "", Param::Ranges::DampCoeffDefault, Param::Ranges::DampCoeffMin, Param::Ranges::DampCoeffMax, Param::Ranges::DampCoeffInc, Param::Ranges::DampCoeffSkw }
 };
 
 ShimmerAudioProcessor::ShimmerAudioProcessor() :
     parameterManager(*this, ProjectInfo::projectName, Parameters),
     shimmer(Param::Ranges::BuildupMax, 20.f, 2),
+    KBReverb(MaxChannels, Param::Ranges::DampCoeffDefault),
     amountRamp(Param::Ranges::AmountDefault)
 {
+    // Pitch Shifter Parameters
     parameterManager.registerParameterCallback(Param::ID::Amount,
     [this] (float value, bool /*force*/)
     {
@@ -38,7 +41,12 @@ ShimmerAudioProcessor::ShimmerAudioProcessor() :
     {
         shimmer.setRatio2(value);
     });
-
+    // Keith Barr Reverb Parameters
+    parameterManager.registerParameterCallback(Param::ID::Damping,
+    [this] (float value, bool /*force*/)
+    {
+        KBReverb.setDampingCoeff(value);
+    });
 }
 
 ShimmerAudioProcessor::~ShimmerAudioProcessor()
@@ -50,6 +58,7 @@ void ShimmerAudioProcessor::prepareToPlay(double newSampleRate, int samplesPerBl
     const unsigned int numChannels { static_cast<unsigned int>(std::max(getMainBusNumInputChannels(), getMainBusNumOutputChannels())) };
 
     shimmer.prepare(newSampleRate, Param::Ranges::BuildupMax, numChannels, samplesPerBlock);
+    KBReverb.prepare(newSampleRate, numChannels);
     amountRamp.prepare(newSampleRate, true, Param::Ranges::AmountDefault);
 
     parameterManager.updateParameters(true);
@@ -61,6 +70,8 @@ void ShimmerAudioProcessor::prepareToPlay(double newSampleRate, int samplesPerBl
 void ShimmerAudioProcessor::releaseResources()
 {
     shimmer.clear();
+    KBReverb.clear();
+    fxBuffer.clear();
 }
 
 void ShimmerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& /*midiMessages*/)
@@ -75,6 +86,7 @@ void ShimmerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
         fxBuffer.copyFrom(ch, 0, buffer, ch, 0, static_cast<int>(numSamples));
 
     shimmer.process(fxBuffer.getArrayOfWritePointers(), fxBuffer.getArrayOfReadPointers(), numChannels, numSamples);
+    KBReverb.process(fxBuffer.getArrayOfWritePointers(), fxBuffer.getArrayOfReadPointers(), numChannels, numSamples);
     // Add KR reverb
     amountRamp.applyGain(fxBuffer.getArrayOfWritePointers(), numChannels, numSamples);
 
