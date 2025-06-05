@@ -430,7 +430,7 @@ add_plugin(pitchshifter
         ${pitch_shifter_source})
 
 
-set(shimmer ${CMAKE_CURRENT_SOURCE_DIR}/projects/Shimmer)
+set(shimmer_source ${CMAKE_CURRENT_SOURCE_DIR}/projects/Shimmer)
 
 add_plugin(shimmer
     VERSION 0.1.0
@@ -439,11 +439,10 @@ add_plugin(shimmer
     PROD_CODE shim
     SYNTH FALSE
     SOURCES
-        ${shimmer}/PluginEditor.cpp
-        ${shimmer}/PluginProcessor.cpp
-        ${dsp_source}/Shimmer.cpp
-        ${dsp_source}/DelayLine.cpp
-        ${dsp_source}/Delay.cpp
+        ${shimmer_source}/PluginEditor.cpp
+        ${shimmer_source}/PluginProcessor.cpp
+        ${shimmer_source}/Shimmer.cpp
+        ${shimmer_source}/DelayLine.cpp
         ${dsp_source}/GranularPitchShifter.cpp
     INCLUDE_DIRS
         ${gui_source}
