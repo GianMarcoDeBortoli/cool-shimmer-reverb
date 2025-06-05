@@ -2,6 +2,7 @@
 
 #include <JuceHeader.h>
 #include "Shimmer.h"
+#include "Ramp.h"
 
 namespace Param
 {
@@ -10,6 +11,7 @@ namespace Param
         static const juce::String Buildup { "buildup" };
         static const juce::String Shift1 { "shift1" };
         static const juce::String Shift2 { "shift2" };
+        static const juce::String Amount {"amount"};
     }
 
     namespace Name
@@ -17,6 +19,7 @@ namespace Param
         static const juce::String Buildup { "buildup" };
         static const juce::String Shift1 { "shift1" };
         static const juce::String Shift2 { "shift2" };
+        static const juce::String Amount {"amount" };   
     }
 
     namespace Ranges
@@ -35,6 +38,12 @@ namespace Param
         static constexpr float Shift2Max { 2.f };
         static constexpr float Shift2Inc { 0.01f };
         static constexpr float Shift2Skw { 1.0f };
+
+        static constexpr float AmountDefault { 0.5f };
+        static constexpr float AmountMin { 0.f };
+        static constexpr float AmountMax { 1.f };
+        static constexpr float AmountInc { 0.01f };
+        static constexpr float AmountSkw { 1.0f };
     }
 
     namespace Units
@@ -82,6 +91,8 @@ public:
 private:
     mrta::ParameterManager parameterManager;
     DSP::Shimmer shimmer;
+
+    DSP::Ramp<float> amountRamp;
     // DSP::Ramp<float> wetRamp;
     // DSP::Ramp<float> dryRamp;
 
