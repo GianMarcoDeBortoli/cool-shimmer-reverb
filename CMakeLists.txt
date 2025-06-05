@@ -443,6 +443,8 @@ add_plugin(shimmer
         ${shimmer_source}/PluginProcessor.cpp
         ${shimmer_source}/Shimmer.cpp
         ${shimmer_source}/DelayLine.cpp
+        ${shimmer_source}/KeithBarrReverb.cpp
+        ${shimmer_source}/AllPass.cpp
         ${dsp_source}/GranularPitchShifter.cpp
     INCLUDE_DIRS
         ${gui_source}
