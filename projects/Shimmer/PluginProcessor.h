@@ -16,10 +16,10 @@ namespace Param
 
     namespace Name
     {
-        static const juce::String Buildup { "buildup" };
-        static const juce::String Shift1 { "shift1" };
-        static const juce::String Shift2 { "shift2" };
-        static const juce::String Amount {"amount" };   
+        static const juce::String Buildup { "Buildup" };
+        static const juce::String Shift1 { "Shift 1" };
+        static const juce::String Shift2 { "Shift 2" };
+        static const juce::String Amount {"Amount" };   
     }
 
     namespace Ranges
