@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DattorroDelayLine.h"
+#include "DelayLine.h"
 #include "LeakyIntegrator.h"
 #include "AllPass.h"
 
@@ -14,7 +14,6 @@ public:
     // Constructor
     KeithBarrReverb(
         unsigned int initNumChannels,                // Number of channels (1 or 2)
-        float initDampingFilterCoeff = 0.005f,       // Allpass filter coefficient
         float initDecayCoeff = 0.50f                // Damping coefficient        
     );
     KeithBarrReverb() = delete; // prevent default constructor
@@ -58,25 +57,13 @@ public:
     static constexpr float ringDelayMs_3 { 340.f / sampleRate_Original * 1000.f };
     static constexpr float ringDelayMs_4 { 250.f / sampleRate_Original * 1000.f };
     // Delay lines delay lengths in milliseconds
-    static constexpr float delayMs_1  { 4453.f / sampleRate_Original * 1000.f };
-    static constexpr float delayMs_2  { 3720.f / sampleRate_Original * 1000.f };
-    static constexpr float delayMs_3 { 4217.f / sampleRate_Original * 1000.f };
-    static constexpr float delayMs_4 { 3163.f / sampleRate_Original * 1000.f };
-    // Indices from which we tap the output
-    // LEFT CHANNEL
-    static constexpr float tapOutMs_left_1 {  266.f / sampleRate_Original * 1000.f };
-    static constexpr float tapOutMs_left_2 { 2974.f / sampleRate_Original * 1000.f };
-    static constexpr float tapOutMs_left_3 { 1913.f / sampleRate_Original * 1000.f };
-    static constexpr float tapOutMs_left_4 { 1996.f / sampleRate_Original * 1000.f };
-    // RIGHT CHANNEL
-    static constexpr float tapOutMs_right_1 {  353.f / sampleRate_Original * 1000.f };
-    static constexpr float tapOutMs_right_2 { 3627.f / sampleRate_Original * 1000.f };
-    static constexpr float tapOutMs_right_3 { 1228.f / sampleRate_Original * 1000.f };
-    static constexpr float tapOutMs_right_4 { 2673.f / sampleRate_Original * 1000.f };
+    static constexpr float delayMs_1  { 453.f / sampleRate_Original * 1000.f };
+    static constexpr float delayMs_2  { 720.f / sampleRate_Original * 1000.f };
+    static constexpr float delayMs_3 { 217.f / sampleRate_Original * 1000.f };
+    static constexpr float delayMs_4 { 163.f / sampleRate_Original * 1000.f };
+
     // feedback / feedforward coefficients
     static constexpr float AllPassCoeff {  0.5f };
-    // Damping filter coefficient
-    static constexpr float dampingCoeff { 0.9f };
 
 
 private:
@@ -93,15 +80,9 @@ private:
     DSP::AllPass ringAllPass_3;
     DSP::AllPass ringAllPass_4;
 
-    // ---------- ATTENUATION ----------
-    // Damping
-    DSP::LeakyIntegrator dampingFilter_1;
-    DSP::LeakyIntegrator dampingFilter_2;
-    DSP::LeakyIntegrator dampingFilter_3;
-    DSP::LeakyIntegrator dampingFilter_4;
 
-    // Decay
-    float decayCoeff;
+    // Damping
+    float dampingCoeff;
 
     // --------- DELAYS ---------
     // Delay lines 2

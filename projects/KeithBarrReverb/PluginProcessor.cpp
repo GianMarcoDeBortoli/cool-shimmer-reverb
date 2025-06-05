@@ -10,7 +10,7 @@ static const std::vector<mrta::ParameterInfo> parameters
 
 KeithBarrReverbProcessor::KeithBarrReverbProcessor():
     parameterManager(*this, ProjectInfo::projectName, parameters),
-    KBReverb(MaxChannels, static_cast<float>(Param::Range::DampFilterCoeffDefault ), static_cast<float>(1.0f)),
+    KBReverb(MaxChannels, static_cast<float>(1.0f)),
     enableRamp(0.05f)
     
 {

@@ -24,11 +24,11 @@ namespace Param
         static const juce::String EnabledOff { "Off" };
         static const juce::String EnabledOn { "On" };
 
-        static constexpr float DampFilterCoeffDefault { 0.005f };
+        static constexpr float DampFilterCoeffDefault { 0.5f };
         static constexpr float DampFilterCoeffMin { 0.f };
-        static constexpr float DampFilterCoeffMax { 1.f };
+        static constexpr float DampFilterCoeffMax { 0.9f };
         static constexpr float DampFilterCoeffInc { 0.01f };
-        static constexpr float DampFilterCoeffSkw { 0.5f };
+        static constexpr float DampFilterCoeffSkw { 1.0f }; // linear response
     }
 
     // namespace Units

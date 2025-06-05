@@ -5,7 +5,6 @@ namespace DSP
 
 KeithBarrReverb::KeithBarrReverb(
     unsigned int initNumChannels,
-    float initDampingFilterCoeff,
     float initDampingCoeff
 
 ) :
@@ -25,11 +24,7 @@ KeithBarrReverb::KeithBarrReverb(
     delay_3(static_cast<unsigned int>(delayMs_3 * static_cast<float>(0.001 * sampleRate)), 1u),
     delay_4(static_cast<unsigned int>(delayMs_4 * static_cast<float>(0.001 * sampleRate)), 1u),
     // dampling filters
-    dampingFilter_1(initDampingFilterCoeff),
-    dampingFilter_2(initDampingFilterCoeff),
-    dampingFilter_3(initDampingFilterCoeff),
-    dampingFilter_4(initDampingFilterCoeff),
-    decayCoeff { initDampingFilterCoeff }
+    dampingCoeff { initDampingCoeff }
 {
 }
 
@@ -57,11 +52,6 @@ void KeithBarrReverb::prepare(double newSampleRate, unsigned int newNumChannels)
     delay_2.prepare(static_cast<unsigned int>(delayMs_2 * static_cast<float>(0.001 * sampleRate)), 1u);
     delay_3.prepare(static_cast<unsigned int>(delayMs_3 * static_cast<float>(0.001 * sampleRate)), 1u);
     delay_4.prepare(static_cast<unsigned int>(delayMs_4 * static_cast<float>(0.001 * sampleRate)), 1u);
-    // Prepare damping filter
-    dampingFilter_1.prepare(sampleRate);
-    dampingFilter_2.prepare(sampleRate);
-    dampingFilter_3.prepare(sampleRate);
-    dampingFilter_4.prepare(sampleRate);
 
     // Prepare feedback state
     feedbackState_1 = 0.f;
@@ -87,16 +77,13 @@ void KeithBarrReverb::clear()
     delay_2.clear();
     delay_3.clear();
     delay_4.clear();
-    // Clear damping filter
-    dampingFilter_1.clear();
-    dampingFilter_2.clear();
-    dampingFilter_3.clear();
-    dampingFilter_4.clear();
     // Clear feedback state
     feedbackState_1 = 0.f;
     feedbackState_2 = 0.f;
     feedbackState_3 = 0.f;
     feedbackState_4 = 0.f;
+    // Reset damping coefficents
+    dampingCoeff = 0.5f;
 }
 
 void KeithBarrReverb::process(float* const* output, const float* const* input, unsigned int numChannels, unsigned int numSamples)
@@ -144,34 +131,23 @@ void KeithBarrReverb::process(float* const* output, const float* const* input, u
         delay_3.process(&output_3, &input_3, 1u);
         delay_4.process(&output_4, &input_4, 1u);
 
-        // Read outputs
-        out_left += 0.25 * delay_1.getSample(0, static_cast<unsigned int>(tapOutMs_left_1 * static_cast<float>(0.001 * sampleRate)));
-        out_left += 0.25 * delay_2.getSample(0, static_cast<unsigned int>(tapOutMs_left_2 * static_cast<float>(0.001 * sampleRate)));
-        out_left += 0.25 * delay_3.getSample(0, static_cast<unsigned int>(tapOutMs_left_3 * static_cast<float>(0.001 * sampleRate)));
-        out_left += 0.25 * delay_4.getSample(0, static_cast<unsigned int>(tapOutMs_left_4 * static_cast<float>(0.001 * sampleRate)));
-        out_right += 0.25 * delay_1.getSample(0, static_cast<unsigned int>(tapOutMs_right_1 * static_cast<float>(0.001 * sampleRate)));
-        out_right += 0.25 * delay_2.getSample(0, static_cast<unsigned int>(tapOutMs_right_2 * static_cast<float>(0.001 * sampleRate)));
-        out_right += 0.25 * delay_3.getSample(0, static_cast<unsigned int>(tapOutMs_right_3 * static_cast<float>(0.001 * sampleRate)));
-        out_right += 0.25 * delay_4.getSample(0, static_cast<unsigned int>(tapOutMs_right_4 * static_cast<float>(0.001 * sampleRate)));
-
         // Damping processing and update feedback state
-        dampingFilter_1.process(&feedbackState_1, &output_1, 1u);
-        dampingFilter_2.process(&feedbackState_2, &output_2, 1u);
-        dampingFilter_3.process(&feedbackState_3, &output_3, 1u);
-        dampingFilter_4.process(&feedbackState_4, &output_4, 1u);
+        feedbackState_1 = output_1 * dampingCoeff;
+        feedbackState_2 = output_2 * dampingCoeff;
+        feedbackState_3 = output_3 * dampingCoeff;
+        feedbackState_4 = output_4 * dampingCoeff;
 
-        // Output
-        output[0][n] = out_left;
-        output[1][n] = out_right;
+
+        // Write to output buffers
+        for (unsigned int ch = 0; ch < numChannels; ++ch)
+            output[ch][n] = output_1 + output_2 + output_3 + output_4;
+
     }
 }
 
 
 void KeithBarrReverb::setDampingFilterCoeff(float newCoeff)
 {
-    dampingFilter_1.setCoeff(newCoeff);
-    dampingFilter_2.setCoeff(newCoeff);
-    dampingFilter_3.setCoeff(newCoeff);
-    dampingFilter_4.setCoeff(newCoeff);
+    dampingCoeff = std::clamp(newCoeff, 0.0f, 1.0f);
 }
 }
