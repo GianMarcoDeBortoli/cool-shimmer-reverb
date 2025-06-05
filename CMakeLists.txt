@@ -184,13 +184,20 @@ add_plugin(parameq
 # flanger project
 set(flanger_source ${CMAKE_CURRENT_SOURCE_DIR}/projects/Flanger)
 
+<<<<<<< Updated upstream
 add_plugin(flanger
+=======
+set(shimmer_source ${CMAKE_CURRENT_SOURCE_DIR}/projects/Shimmer)
+
+add_plugin(shimmer
+>>>>>>> Stashed changes
     VERSION 0.1.0
     PLUGIN_NAME "Flanger"
     PROD_NAME Flanger
     PROD_CODE Flng
     SYNTH FALSE
     SOURCES
+<<<<<<< Updated upstream
         ${flanger_source}/PluginEditor.cpp
         ${flanger_source}/PluginProcessor.cpp
         ${dsp_source}/DelayLine.cpp
@@ -309,6 +316,14 @@ add_plugin(synth
         ${dsp_source}/Oscillator.cpp
         ${dsp_source}/EnvelopeGenerator.cpp
         ${dsp_source}/StateVariableFilter.cpp
+=======
+        ${shimmer_source}/PluginEditor.cpp
+        ${shimmer_source}/PluginProcessor.cpp
+        ${shimmer_source}/Shimmer.cpp
+        ${shimmer_source}/DelayLine.cpp
+        ${shimmer_source}/Delay.cpp
+        ${shimmer_source}/GranularPitchShifter.cpp
+>>>>>>> Stashed changes
     INCLUDE_DIRS
         ${gui_source}
         ${dsp_source}
