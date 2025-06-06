@@ -147,6 +147,9 @@ void ShimmerAudioProcessor::prepareToPlay(double newSampleRate, int samplesPerBl
     reverbBuffer.setSize(static_cast<int>(numChannels), samplesPerBlock);
     reverbBuffer.clear();
 
+    dryBuffer.setSize(static_cast<int>(numChannels), samplesPerBlock);
+    dryBuffer.clear();
+
     parameterManager.updateParameters(true);
 }
 
@@ -158,6 +161,7 @@ void ShimmerAudioProcessor::releaseResources()
     dattorroReverb.clear();
     shimmerBuffer.clear();
     reverbBuffer.clear();
+    dryBuffer.clear();
 }
 
 void ShimmerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce::MidiBuffer& /*midiMessages*/)
@@ -172,6 +176,7 @@ void ShimmerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     {
         shimmerBuffer.copyFrom(ch, 0, buffer, ch, 0, static_cast<int>(numSamples));
         reverbBuffer.copyFrom(ch, 0, buffer, ch, 0, static_cast<int>(numSamples));
+        dryBuffer.copyFrom(ch, 0, buffer, ch, 0, static_cast<int>(numSamples));
     } 
 
     shimmer.process(shimmerBuffer.getArrayOfWritePointers(), shimmerBuffer.getArrayOfReadPointers(), numChannels, numSamples);
@@ -189,9 +194,12 @@ void ShimmerAudioProcessor::processBlock (juce::AudioBuffer<float>& buffer, juce
     enableRamp.applyGain(reverbBuffer.getArrayOfWritePointers(), numChannels, numSamples);
     
     // Add dry and wet signals
-    mixRamp.applyInverseGain(buffer.getArrayOfWritePointers(), numChannels, numSamples);
+    mixRamp.applyInverseGain(dryBuffer.getArrayOfWritePointers(), numChannels, numSamples);
     for (int ch = 0; ch < static_cast<int>(numChannels); ++ch)
+    {
+        buffer.addFrom(ch, 0, dryBuffer, ch, 0, static_cast<int>(numSamples));
         buffer.addFrom(ch, 0, reverbBuffer, ch, 0, static_cast<int>(numSamples));
+    }
 }
 
 void ShimmerAudioProcessor::getStateInformation(juce::MemoryBlock& destData)

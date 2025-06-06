@@ -183,6 +183,7 @@ private:
     // Internal buffer for processing
     juce::AudioBuffer<float> shimmerBuffer;
     juce::AudioBuffer<float> reverbBuffer;
+    juce::AudioBuffer<float> dryBuffer;
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(ShimmerAudioProcessor)
 };
