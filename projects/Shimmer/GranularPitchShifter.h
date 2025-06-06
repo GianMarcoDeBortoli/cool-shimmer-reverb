@@ -32,7 +32,7 @@ private:
     unsigned int bufferSize { 0 };              // Total delay buffer size (in samples)
     unsigned int blockSizeSamples { 0 };        // Grain size (in samples)
     float blockSizeMs { 0.0f };                 // Grain size (in milliseconds)
-    unsigned int halfBlockSizeSamples { 0 };    // For overlapping grains
+    unsigned int fracBlockSizeSamples { 0 };    // For overlapping grains
     float pitchRatio { 1.0f };                  // Playback rate of grains
     double sampleRate { 48000.0 };              // Sample rate
     unsigned int numChannels { 0 };             // Number of audio channels

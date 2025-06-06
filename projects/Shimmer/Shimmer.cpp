@@ -108,13 +108,13 @@ void Shimmer::setBuildup(float newBuildupMs)
 
 void Shimmer::setRatio1(float newRatio1)
 {
-    ratio1 = std::clamp(newRatio1, 0.25f, 2.f);
+    ratio1 = std::clamp(newRatio1, 0.25f, 4.f);
     shift1.setPitchRatio(static_cast<float>(ratio1));
 }
 
 void Shimmer::setRatio2(float newRatio2)
 {
-    ratio2 = std::clamp(newRatio2, 0.25f, 2.f);
+    ratio2 = std::clamp(newRatio2, 0.25f, 4.f);
     shift2.setPitchRatio(static_cast<float>(ratio2));
 }
 

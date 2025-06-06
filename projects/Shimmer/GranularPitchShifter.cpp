@@ -18,7 +18,7 @@ void GranularPitchShifter::prepare(double newSampleRate)
 
     bufferSize = static_cast<unsigned int>(std::ceil(sampleRate)); // 1-second buffer
     blockSizeSamples = static_cast<unsigned int>(std::ceil(blockSizeMs * 0.001 * sampleRate));
-    halfBlockSizeSamples = blockSizeSamples / 2;
+    fracBlockSizeSamples = blockSizeSamples / 4;
 
     for (auto& buf : delayBuffer)
         buf.resize(bufferSize, 0.0f);
@@ -70,7 +70,7 @@ void GranularPitchShifter::process(float* const* output, const float* const* inp
         // Use a safe offset from write head
         float safeDelay = static_cast<float>(2 * blockSizeSamples);
         float readBase1 = fmodf(static_cast<float>(writeIndex + bufferSize) - safeDelay, bufferSize);
-        float readBase2 = fmodf(readBase1 + halfBlockSizeSamples * pitchRatio, bufferSize);
+        float readBase2 = fmodf(readBase1 + fracBlockSizeSamples * pitchRatio, bufferSize);
 
         for (unsigned int n = 0; n < numSamples; ++n)
         {

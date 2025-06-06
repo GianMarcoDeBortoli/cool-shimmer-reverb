@@ -71,13 +71,13 @@ namespace Param
 
         static constexpr float Shift1Default { 2.f };
         static constexpr float Shift1Min { 0.25f };
-        static constexpr float Shift1Max { 2.f };
+        static constexpr float Shift1Max { 4.f };
         static constexpr float Shift1Inc { 0.01f };
         static constexpr float Shift1Skw { 1.0f };
 
         static constexpr float Shift2Default { 0.5f };
         static constexpr float Shift2Min { 0.25f };
-        static constexpr float Shift2Max { 2.f };
+        static constexpr float Shift2Max { 4.f };
         static constexpr float Shift2Inc { 0.01f };
         static constexpr float Shift2Skw { 1.0f };
 
